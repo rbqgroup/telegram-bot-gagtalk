@@ -1,0 +1,21 @@
+token:
+
+gagList:
+
+  - name: 深喉口塞
+    type: deepthroat
+
+  - name: 实心口球
+    type: solidBall
+
+  - name: 空心口球
+    type: hollowedBall
+
+  - name: 开口器
+    type: ringMask
+
+  - name: 布条口塞
+    type: cleave
+
+  - name: 束颈口塞
+    type: mouthCorset

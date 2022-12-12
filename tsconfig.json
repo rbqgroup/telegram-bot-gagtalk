@@ -1,0 +1,21 @@
+{
+   "compilerOptions": {
+      "lib": ["ESNext"],
+      "target": "ES2020",
+      "module": "ES2022",
+      "moduleResolution": "Node",
+      "allowSyntheticDefaultImports": true,
+      "outDir": "./build",
+      "declaration": true,
+      "incremental": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "sourceMap": true,
+      "checkJs": true,
+      "strict": true,
+      "suppressImplicitAnyIndexErrors": true,
+      "skipLibCheck": true,
+      "strictPropertyInitialization": false
+   },
+   "include": ["src"]
+}
