@@ -31,8 +31,10 @@ commonCommands.use(
                 } else {
                     enqueue(() => ctx.deleteMessage(ctx.message.message_id));
                     enqueue(() => ctx.toast(format(Templates.expNotEnough, {
+                        targetUser: markdownTextMention(ctx.user),
+                        gagName,
                         required: gag.exp,
-                        current: ctx.user.exp,
+                        actual: ctx.user.exp,
                     })));
                 }
             } else {
