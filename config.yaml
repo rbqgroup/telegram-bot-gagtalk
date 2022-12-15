@@ -6,7 +6,7 @@ admins:
 
 gagList:
 
-- 布条口塞:
+- name: 布条口塞
   type: cleave
   exp: 0
 
