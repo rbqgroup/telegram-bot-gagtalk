@@ -66,11 +66,16 @@ bot.launch();
 
 console.log('Bot is now online.');
 
-process.once('SIGINT', () => {
+function onExit() {
     db.close();
+    clearInterval(queue._timer);
+}
+
+process.once('SIGINT', () => {
+    onExit();
     bot.stop('SIGINT');
 });
 process.once('SIGTERM', () => {
-    db.close();
+    onExit();
     bot.stop('SIGTERM');
 });

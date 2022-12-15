@@ -21,7 +21,7 @@ function run(task: Task) {
         });
 }
 
-setInterval(() => {
+const _timer = setInterval(() => {
     const task = pendingTasks.shift();
     if (task) {
         task.retry--;
@@ -37,4 +37,4 @@ type Task = {
 }
 
 export { enqueue };
-export default { enqueue, doNotRetry };
+export default { enqueue, doNotRetry, _timer };
