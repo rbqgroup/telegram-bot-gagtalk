@@ -25,7 +25,7 @@ commonCommands.use(
         if (gagName) {
             if (gagList.map(gag => gag.name).includes(gagName)) {
                 const gag = gagList.find(gag => gag.name == gagName)!;
-                if (gag.exp >= ctx.user.exp) {
+                if (gag.exp <= ctx.user.exp) {
                     ctx.user.defaultGagName = gagName;
                     enqueue(() => ctx.toast(Templates.succeed));
                 } else {
