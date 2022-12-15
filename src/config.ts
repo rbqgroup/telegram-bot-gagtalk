@@ -1,12 +1,15 @@
 import { readFile } from 'fs/promises';
-import type { GagTypes } from 'gagtalk-mandarin';
+import { GagTypes } from 'gagtalk-mandarin';
 import { parse } from 'yaml';
 
 type Config = Readonly<{
     token: string;
+    expGainCooldown: number;
+    admins: number[];
     gagList: Readonly<{
         name: string;
         type: keyof typeof GagTypes;
+        exp: number;
     }>[];
 }>;
 

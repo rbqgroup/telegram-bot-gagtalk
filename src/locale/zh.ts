@@ -50,9 +50,60 @@ const Templates = {
     privacy: `\
 本 bot 通常不会记录您输入的内容，仅当程序出错时会将您发送的信息输出到日志中以便修复问题。
 如您介意，请不要通过此 bot 输入隐私信息。
-
-本 bot 没有读取群组消息的权限，除非是管理员。
 `,
+
+    succeed: '✅',
+    unknownError: '⚠️ 发生了未知的错误。',
+    userError: '❌ 命令错误。请查看 /help 了解正确用法。',
+    replyRequired: '❌ 此命令需回复其他人使用。',
+    argInvalid: '❌ 参数 $index "$value" 写错了！',
+    argsMismatch: '❌ 这个命令要 $expected 个参数，你只写了 $actual 个。',
+
+    viaBotPrefix: '（透过$gagName）',
+    viaBotEmptyText: '（透过$gagName呜咽了一声）',
+    expGained: `\
+$user的绒度增加了 1 点。
+当前绒度 $exp
+（绒度获取有冷却时间，请不要为此无意义刷屏。）`,
+    illegalMessage: '⚠️ $user似乎忘记了自己正戴着$gagName，作为惩罚 ta 的绒度已降低 1 点。',
+
+    gagListHeader: '*__口塞名称与所需绒度__*\n（点击名称以复制）\n',
+    currentGagPref: '你喜欢戴：__$gagName__\n如要更改，在此命令后加上口塞名称。',
+    currentPermission: `\
+你当前的权限为：__$permission__
+如要更改，在此命令后加上 self, trusted, everyone 的其中之一。`,
+    noPermission: '❌ $targetUser目前不想被群友们调教。',
+    currentTimerLockLimit: `\
+你设置的定时锁时间上限：__$userTimeLimit__
+你的绒度所允许的上限：$expTimeLimit
+（取两者中较小的一个。）`,
+    timerLockAdded: '✅ $user给$targetUser的口塞上的定时锁加了 $time，剩余时间：$remainingTime。',
+    selfTimerLockAdded: '✅ $user给自己的口塞上的定时锁加了 $time，剩余时间：$remainingTime。',
+    timerLockAddFailed: '❌ $targetUser没戴着口塞呢。',
+    timerLockRemainingTime: '$targetUser的口塞上的定时锁还剩 $time。',
+    timerLockExpired: '$targetUser的口塞现在没有上锁。',
+    gagged: '✅ $user给$targetUser戴上了$gagName。',
+    selfGagged: '✅ $user给自己戴上了$gagName。',
+    alreadyGagged: '❌ $targetUser已经戴着$gagName了。',
+    ungagged: '✅ $user摘下了$targetUser的口塞。',
+    selfUngagged: '✅ $user摘下了自己的口塞。',
+    ungagFailed: '❌ $targetUser的口塞上的定时锁还剩 $time。',
+    currentExp: '$targetUser的绒度是 $exp',
+    expNotEnough: '❌ $targetUser的绒度不足。$gagName需要 $required，而$targetUser只有 $actual。',
+    expRankingHeader: '本群最绒的绒布球们：\n',
 };
 
-export default { Templates };
+function formatTime(time: number) {
+    const days = Math.floor(time / 86400000);
+    const hours = Math.floor(time % 86400000 / 3600000);
+    const minutes = Math.floor(time % 3600000 / 60000);
+    const seconds = Math.floor(time % 60000 / 1000);
+    return `\
+${days ? ` ${days} 天` : ''}\
+${hours ? ` ${hours} 小时` : ''}\
+${minutes ? ` ${minutes} 分钟` : ''}\
+${seconds ? ` ${seconds} 秒` : ''}\
+`.slice(1);
+}
+
+export { Templates, formatTime };

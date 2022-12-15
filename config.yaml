@@ -1,21 +1,31 @@
-token:
+token: 
+expGainCooldown: 120000
+
+admins:
+- 0
 
 gagList:
 
-  - name: 深喉口塞
-    type: deepthroat
+- 布条口塞:
+  type: cleave
+  exp: 0
 
-  - name: 实心口球
-    type: solidBall
+- name: 开口器
+  type: ringMask
+  exp: 50
 
-  - name: 空心口球
-    type: hollowedBall
+- name: 空心口球
+  type: hollowedBall
+  exp: 100
 
-  - name: 开口器
-    type: ringMask
+- name: 实心口球
+  type: solidBall
+  exp: 150
 
-  - name: 布条口塞
-    type: cleave
+- name: 深喉口塞
+  type: deepthroat
+  exp: 250
 
-  - name: 束颈口塞
-    type: mouthCorset
+- name: 束颈口塞
+  type: mouthCorset
+  exp: 500
