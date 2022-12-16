@@ -14,10 +14,10 @@ export default async function GroupMiddleware(
     }
     ctx.group.id = ctx.chat.id;
     if (!ctx.group.usersId.includes(ctx.user.id)) {
-        ctx.group.usersId.push(ctx.from.id);
+        ctx.group.usersId.push(ctx.user.id);
     }
     if (!ctx.group.usersId.includes(ctx.targetUser.id)) {
-        ctx.group.usersId.push(ctx.from.id);
+        ctx.group.usersId.push(ctx.targetUser.id);
     }
 
     await next();
