@@ -11,6 +11,9 @@ export async function onInlineQuery(ctx: MyContext<Update.InlineQueryUpdate>) {
         Object.values(ctx.user.groups).map(group => group.gagName).filter(name => name)
     );
     let results = gagList
+        // If the user is wearing a gag, only wearing gags will show in group chats.
+        // Sadly we can't get chat ID from inline queries, so this will be
+        // a list of gags that are wearing in all groups instead of only the correct one.
         .filter(gag => !(
             ctx.inlineQuery.chat_type?.endsWith('group')
             && wearingGags.size

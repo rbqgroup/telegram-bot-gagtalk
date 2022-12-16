@@ -4,6 +4,7 @@ import { parse } from 'yaml';
 
 type Config = Readonly<{
     token: string;
+    botUsername: string;
     expGainCooldown: number;
     admins: number[];
     gagList: Readonly<{

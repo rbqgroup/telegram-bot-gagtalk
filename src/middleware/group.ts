@@ -1,4 +1,4 @@
-import { groups, users } from '../db.js';
+import { groups } from '../db.js';
 import { Group } from '../model/group.js';
 import { MyMessageContext } from '../types/context.js';
 

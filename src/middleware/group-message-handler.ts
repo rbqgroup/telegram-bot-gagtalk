@@ -2,9 +2,10 @@ import config from '../config.js';
 import { format, Templates } from '../locale.js';
 import { enqueue } from '../util/queue.js';
 import { MyMessageContext } from '../types/context.js';
-import { markdownTextMention } from '../util/telegraf.js';
+import { markdownEscape, markdownTextMention } from '../util/telegraf.js';
 
-export default async function GroupMessageMiddleware(
+/** Handler for message deletion and exp rewarding. */
+export default async function GroupMessageHandlerMiddleware(
     ctx: MyMessageContext,
     next: () => Promise<void>,
 ) {
@@ -13,8 +14,10 @@ export default async function GroupMessageMiddleware(
         if ('sticker' in ctx.message) {
             warnAndDeleteUngarbledMessage();
         } else if ('text' in ctx.message) {
-            if (ctx.message.via_bot?.username == ctx.me &&
-                ctx.message.text.startsWith(format(Templates.viaBotPrefix, { gagName }))) {
+            if (ctx.message.via_bot?.username == ctx.me && (
+                ctx.message.text.startsWith(format(Templates.viaBotPrefix, { gagName })) ||
+                ctx.message.text.startsWith(format(Templates.viaBotEmptyText, { gagName }))
+            )) {
                 if (Date.now() - ctx.user.expLastEarnedTime > config.expGainCooldown) {
                     ctx.user.exp++;
                     ctx.user.expLastEarnedTime = Date.now();
@@ -24,6 +27,9 @@ export default async function GroupMessageMiddleware(
                     })));
                 }
             } else if (ctx.message.entities?.[0]?.type == 'bot_command') {
+                // This middleware is ordered after commands,
+                // so correct commands won't be deleted.
+                // (assume that next() is not called inside command handlers)
                 enqueue(() => ctx.deleteMessage(ctx.message.message_id));
             } else {
                 warnAndDeleteUngarbledMessage();
@@ -35,9 +41,10 @@ export default async function GroupMessageMiddleware(
     function warnAndDeleteUngarbledMessage() {
         ctx.user.exp = Math.max(0, ctx.user.exp - 1);
         enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-        enqueue(async () => ctx.toast(format(Templates.illegalMessage, {
+        enqueue(() => ctx.toast(format(Templates.illegalMessage, {
             user: markdownTextMention(ctx.user),
             gagName,
+            botName: markdownEscape(ctx.me),
         })));
     }
 }

@@ -1,5 +1,10 @@
 export class Group {
+
     id!: number;
-    usersId: number[] = [];
+
+    createdTime: number = Date.now();
+
     botEnabled: boolean = false;
+
+    usersId: number[] = [];
 }

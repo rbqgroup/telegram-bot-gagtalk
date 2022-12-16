@@ -54,22 +54,29 @@ groupCommands.use(enabledGroupChat(
         }
     }),
     command('ungag', permissionCheck, ctx => {
-        const { timerLockedUntil: timerLockUntil } = ctx.targetUser.groups[ctx.chat.id];
-        if (timerLockUntil > Date.now()) {
+        const { gagName, timerLockedUntil } = ctx.targetUser.groups[ctx.chat.id];
+        if (timerLockedUntil > Date.now()) {
             enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-            enqueue(() => ctx.toast(format(Templates.ungagFailed, {
+            enqueue(() => ctx.toast(format(Templates.ungagPreventedByLock, {
                 targetUser: markdownTextMention(ctx.targetUser),
-                time: formatTime(timerLockUntil - Date.now()),
+                time: formatTime(timerLockedUntil - Date.now()),
             })));
         } else {
-            ctx.targetUser.groups[ctx.chat.id].gagName = '';
-            enqueue(() => ctx.quietReply(format(
-                ctx.user == ctx.targetUser ? Templates.selfUngagged : Templates.ungagged,
-                {
-                    user: markdownTextMention(ctx.user),
+            if (gagName) {
+                ctx.targetUser.groups[ctx.chat.id].gagName = '';
+                enqueue(() => ctx.quietReply(format(
+                    ctx.user == ctx.targetUser ? Templates.selfUngagged : Templates.ungagged,
+                    {
+                        user: markdownTextMention(ctx.user),
+                        targetUser: markdownTextMention(ctx.targetUser),
+                    }
+                )));
+            } else {
+                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+                enqueue(() => ctx.toast(format(Templates.notGagged, {
                     targetUser: markdownTextMention(ctx.targetUser),
-                }
-            )));
+                })));
+            }
         }
     }),
     command('timeradd', permissionCheck, ctx => {

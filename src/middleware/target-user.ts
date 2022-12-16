@@ -2,6 +2,7 @@ import { users } from '../db.js';
 import { User } from '../model/user.js';
 import { MyMessageContext } from '../types/context.js';
 
+/** Same as UserMiddleware, but for message reply target users. */
 export default async function TargetUserMiddleware(
     ctx: MyMessageContext,
     next: () => Promise<void>,

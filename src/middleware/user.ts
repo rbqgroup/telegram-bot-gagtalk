@@ -4,7 +4,7 @@ import { UserGroupStatus } from '../model/user-group-status.js';
 import { User } from '../model/user.js';
 import { MyContext, MyMessageContext } from '../types/context.js';
 
-/** Add user session to ctx and update user info. */
+/** Add user session to ctx and update user info after a succeed request. */
 export default async function UserMiddleware(
     ctx: MyMessageContext | MyContext<Update.InlineQueryUpdate>,
     next: () => Promise<void>,

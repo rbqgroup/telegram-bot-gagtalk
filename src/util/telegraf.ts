@@ -1,9 +1,8 @@
-import { Composer, Context, Middleware, MiddlewareFn, NarrowedContext } from 'telegraf';
-import { MountMap } from 'telegraf/typings/telegram-types.js';
+import { Composer, Middleware, MiddlewareFn } from 'telegraf';
 import { NonemptyReadonlyArray } from 'telegraf/typings/util.js';
 import { User as TelegramUser } from 'typegram';
 import { User } from '../model/user.js';
-import { MyContext, MyMessageContext, MyTextMessageContext } from '../types/context.js';
+import { MyContext, MyTextMessageContext } from '../types/context.js';
 
 const { compose, optional } = Composer<MyContext>;
 
@@ -28,7 +27,16 @@ export function enabledGroupChat<C extends MyContext>(
 }
 
 export function markdownTextMention(user: User | TelegramUser) {
-    const firstName = (user as User).firstName ?? (user as TelegramUser).first_name;
-    const lastName = (user as User).lastName ?? (user as TelegramUser).last_name;
+    const firstName = markdownEscape(
+        (user as User).firstName ?? (user as TelegramUser).first_name);
+    const lastName = markdownEscape(
+        (user as User).lastName ?? (user as TelegramUser).last_name);
     return ` [${lastName ? lastName + ' ' : ''}${firstName}](tg://user?id=${user.id}) `;
+}
+
+export function markdownEscape(str?: string) {
+    return str
+        ? '*_-+y~|([{}])`'.split('')
+            .reduce((str, char) => str.replaceAll(char, '\\' + char), str)
+        : str;
 }

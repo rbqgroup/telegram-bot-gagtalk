@@ -7,10 +7,11 @@ import { User } from '../model/user';
 
 export interface MyContext<U extends Update = Update> extends Context<U> {
     user: User;
-    /** Reply target of the message, otherwise self */
+    /** Reply target of the message, otherwise self. */
     targetUser: User;
     group?: Group;
     arguments: string[];
+    /** Your fn should throw if cast was failed. */
     castArgument: <T>(index: number, fn: (arg: string) => T) => T;
     quietReply: (markdown: string, extra?: ExtraReplyMessage) => Promise<Message.TextMessage>;
     quietQuoteReply: (markdown: string, extra?: ExtraReplyMessage) => Promise<Message.TextMessage>;

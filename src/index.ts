@@ -13,7 +13,7 @@ import ArgumentsMiddleware from './middleware/arguments.js';
 import UserMiddleware from './middleware/user.js';
 import TargetUserMiddleware from './middleware/target-user.js';
 import GroupMiddleware from './middleware/group.js';
-import GroupMessageMiddleware from './middleware/group-message.js';
+import GroupMessageHandlerMiddleware from './middleware/group-message-handler.js';
 import commonCommands from './command/common.js';
 import groupCommands from './command/group.js';
 import adminCommands from './command/admin.js';
@@ -31,6 +31,7 @@ bot.on('message', groupChat(GroupMiddleware));
 
 bot.start(ctx => enqueue(() => ctx.quietReply(Templates.start)));
 bot.help(ctx => enqueue(() => ctx.quietReply(Templates.help)));
+bot.command('gaghelp', ctx => enqueue(() => ctx.quietReply(Templates.gagHelp)));
 bot.command('privacy', ctx => enqueue(() => ctx.quietReply(Templates.privacy)));
 
 bot.use(groupCommands);
@@ -39,18 +40,18 @@ bot.use(commonCommands);
 
 // below middlewares won't execute if command hits
 
-bot.use(enabledGroupChat(on('message', GroupMessageMiddleware)));
+bot.use(enabledGroupChat(on('message', GroupMessageHandlerMiddleware)));
 
 bot.on('inline_query', onInlineQuery);
 
-queue.doNotRetry = reason => {
+queue.doNotRetry(reason => {
     if (reason instanceof TelegramError) {
         if (reason.code == 400) {
             return true;
         }
     }
     return false;
-};
+});
 bot.catch((err, ctx) => {
     if (err instanceof TelegramError) {
         if (err.description == 'Bad Request: message to delete not found') {
