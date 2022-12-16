@@ -134,7 +134,7 @@ ${days ? ` ${days} 天` : ''}\
 ${hours ? ` ${hours} 小时` : ''}\
 ${minutes ? ` ${minutes} 分钟` : ''}\
 ${seconds ? ` ${seconds} 秒` : ''}\
-`.slice(1);
+`.slice(1) || '0 秒';
 }
 
 export { Templates, formatTime };

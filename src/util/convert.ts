@@ -5,8 +5,14 @@ export function toInt(str: string) {
 }
 
 export function shortTimeSpanToMilliseconds(str: string) {
-    if (!str || !/^(\d+[smhd])+$/.test(str)) {
+    if (str == null || str === '') {
         return null;
+    }
+    if (str === '0') {
+        return 0;
+    }
+    if (!/^(\d+[smhd])+$/.test(str)) {
+        throw 'Incorrect time format.';
     }
     let time = 0;
     const matches = str.matchAll(/(\d+)([smhd])/g);
