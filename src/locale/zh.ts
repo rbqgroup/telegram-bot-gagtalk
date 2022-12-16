@@ -79,7 +79,7 @@ const Templates = {
     userError: '❌ 命令错误。请查看 /help 了解正确用法。',
     replyRequired: '❌ 此命令需回复其他人使用。',
     argInvalid: '❌ 参数 $index "$value" 写错了！',
-    argsMismatch: '❌ 这个命令要 $expected 个参数，你只写了 $actual 个。',
+    argsMismatch: '❌ 这个命令要 $expected 个参数，你写了 $actual 个。',
 
     viaBotPrefix: '（透过$gagName）',
     viaBotEmptyText: '（透过$gagName呜咽了一声）',

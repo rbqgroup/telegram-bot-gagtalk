@@ -2,7 +2,7 @@ import { Composer } from 'telegraf';
 import { message } from 'telegraf/filters';
 import config from '../config.js';
 import { format, formatTime, Templates } from '../locale.js';
-import { ArgumentInvalidError, assertArgument } from '../middleware/arguments.js';
+import { ArgumentInvalidError, assertArgument, assertArgumentsAtMost, assertArgumentsCountExact } from '../middleware/arguments.js';
 import { Permission, Permissions } from '../model/user-group-status.js';
 import { enqueue } from '../util/queue.js';
 import { getActualTimerLockLimit } from '../util/timer-lock.js';
@@ -17,7 +17,7 @@ const { gagList } = config;
 const groupCommands = new Composer<MyContext>();
 
 groupCommands.use(enabledGroupChat(
-    command('gag', permissionCheck, ctx => {
+    command('gag', assertArgumentsAtMost(1), permissionCheck, ctx => {
         const gagName = ctx.arguments[0] || ctx.targetUser.defaultGagName;
         const gag = gagList.find(gag => gag.name == gagName);
         const status = ctx.targetUser.groups[ctx.chat.id];
@@ -53,7 +53,7 @@ groupCommands.use(enabledGroupChat(
             })));
         }
     }),
-    command('ungag', permissionCheck, ctx => {
+    command('ungag', assertArgumentsCountExact(0), permissionCheck, ctx => {
         const { gagName, timerLockedUntil } = ctx.targetUser.groups[ctx.chat.id];
         if (timerLockedUntil > Date.now()) {
             enqueue(() => ctx.deleteMessage(ctx.message.message_id));
@@ -79,7 +79,7 @@ groupCommands.use(enabledGroupChat(
             }
         }
     }),
-    command('timeradd', permissionCheck, ctx => {
+    command('timeradd', assertArgumentsAtMost(1), permissionCheck, ctx => {
         const time = ctx.castArgument(0, shortTimeSpanToMilliseconds) ?? 600000;
         const status = ctx.targetUser.groups[ctx.chat.id];
         if (status.gagName) {
@@ -112,7 +112,7 @@ groupCommands.use(enabledGroupChat(
             })));
         }
     }),
-    command('timerremaining', ctx => {
+    command('timerremaining', assertArgumentsCountExact(0), ctx => {
         const time = ctx.targetUser.groups[ctx.chat.id].timerLockedUntil;
         enqueue(() => ctx.quietReply(format(
             time > Date.now() ? Templates.timerLockRemainingTime : Templates.timerLockExpired,
@@ -123,6 +123,7 @@ groupCommands.use(enabledGroupChat(
         )));
     }),
     command('permission',
+        assertArgumentsAtMost(1),
         assertArgument(0, arg => !arg || Permissions.includes(arg as Permission)),
         ctx => {
             const permission = ctx.arguments.shift() as Permission | undefined;
@@ -136,7 +137,7 @@ groupCommands.use(enabledGroupChat(
             }
         },
     ),
-    command('ranking', async ctx => {
+    command('ranking', assertArgumentsCountExact(0), async ctx => {
         const usersInGroup = (await Promise.all(ctx.group!.usersId.map(id => users.get(id))))
             .filter(user => user && user.exp).sort((a, b) => b.exp - a.exp).slice(0, 20);
         const text = usersInGroup.reduce((str, user) => `\
@@ -147,14 +148,14 @@ ${markdownTextMention(user)}`,
         enqueue(() => ctx.quietReply(text));
     }),
     on(message('text', 'reply_to_message'),
-        command('trust', ctx => {
+        command('trust', assertArgumentsCountExact(0), ctx => {
             if (!ctx.user.trustedUsersId.includes(ctx.targetUser.id) &&
                 ctx.targetUser != ctx.user) {
                 ctx.user.trustedUsersId.push(ctx.targetUser.id);
             }
             enqueue(() => ctx.toast(Templates.succeed));
         }),
-        command('distrust', ctx => {
+        command('distrust', assertArgumentsCountExact(0), ctx => {
             const index = ctx.user.trustedUsersId.indexOf(ctx.targetUser.id);
             if (index >= 0) {
                 ctx.user.trustedUsersId.splice(index, 1);

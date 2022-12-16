@@ -6,6 +6,7 @@ import { expToTimerLockCap } from '../util/timer-lock.js';
 import { MyContext } from '../types/context.js';
 import { shortTimeSpanToMilliseconds } from '../util/convert.js';
 import { markdownTextMention } from '../util/telegraf.js';
+import { assertArgumentsAtMost, assertArgumentsCountExact } from '../middleware/arguments.js';
 
 const { command } = Composer<MyContext>;
 const { gagList } = config;
@@ -14,13 +15,13 @@ const sortedGagList = [...config.gagList].sort((a, b) => a.exp - b.exp);
 const commonCommands = new Composer<MyContext>();
 
 commonCommands.use(
-    command('gaglist', ctx => {
+    command('gaglist', assertArgumentsCountExact(0), ctx => {
         const text = sortedGagList.reduce(
             (str, gag) => `${str}\n\`${gag.exp.toFixed().padStart(4)}\` \`${gag.name}\``,
             Templates.gagListHeader);
         enqueue(() => ctx.quietReply(text));
     }),
-    command('gagpref', ctx => {
+    command('gagpref', assertArgumentsAtMost(1), ctx => {
         const gagName = ctx.arguments.shift();
         if (gagName) {
             if (gagList.map(gag => gag.name).includes(gagName)) {
@@ -50,7 +51,7 @@ commonCommands.use(
             })));
         }
     }),
-    command('timerlimit', ctx => {
+    command('timerlimit', assertArgumentsAtMost(1), ctx => {
         let time = ctx.castArgument(0, shortTimeSpanToMilliseconds);
         if (typeof time == 'number') {
             time = time ? Math.max(600000, time) : 0;
@@ -65,7 +66,7 @@ commonCommands.use(
             })));
         }
     }),
-    command('xp', ctx => ctx.targetUser && enqueue(() =>
+    command('xp', assertArgumentsCountExact(0), ctx => ctx.targetUser && enqueue(() =>
         ctx.quietQuoteReply(format(Templates.currentExp, {
             targetUser: markdownTextMention(ctx.targetUser),
             exp: ctx.targetUser.exp,
