@@ -138,10 +138,11 @@ groupCommands.use(enabledGroupChat(
     ),
     command('ranking', async ctx => {
         const usersInGroup = (await Promise.all(ctx.group!.usersId.map(id => users.get(id))))
-            .filter(user => user && user.exp).sort((a, b) => b.exp - a.exp);
+            .filter(user => user && user.exp).sort((a, b) => b.exp - a.exp).slice(0, 20);
         const text = usersInGroup.reduce((str, user) => `\
-${str}\n\`${user.exp.toFixed().padStart(5)}\`  \
-${user.lastName ? user.lastName + ' ' : ''}${user.firstName}`,
+${str}
+\`${user.exp.toFixed().padStart(5)}\`  \
+${markdownTextMention(user)}`,
             Templates.expRankingHeader);
         enqueue(() => ctx.quietReply(text));
     }),
