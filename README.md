@@ -9,6 +9,6 @@
 Clone 并编辑 `config.yaml` 后…
 
 ```bash
-npm i --omit=dev
+npm i
 npm run start
 ```
