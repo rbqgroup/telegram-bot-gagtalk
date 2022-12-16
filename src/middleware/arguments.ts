@@ -2,6 +2,7 @@ import { UserError } from './error-handler.js';
 import { format, Templates } from '../locale.js';
 import { MyTextMessageContext } from '../types/context.js';
 import { enqueue } from '../util/queue.js';
+import { markdownEscape } from '../util/telegraf.js';
 
 export class CommandNotEnoughArgumentsError extends UserError {
     constructor(requireCount: number, providedCount: number) {
@@ -17,7 +18,7 @@ export class ArgumentInvalidError extends UserError {
     constructor(index: number, value: string, cause?: unknown) {
         super(format(Templates.argInvalid, {
             index: index + 1,
-            value,
+            value: markdownEscape(value),
         }), { cause });
         this.name = 'ArgumentInvalidError';
     }

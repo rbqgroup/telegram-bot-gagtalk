@@ -39,7 +39,7 @@ export function markdownTextMention(user: User | TelegramUser) {
 
 export function markdownEscape(str?: string) {
     return str
-        ? '*_-+y~|([{}])`'.split('')
+        ? '_*[]()~`>#+-=|{}.!'.split('')
             .reduce((str, char) => str.replaceAll(char, '\\' + char), str)
         : str;
 }

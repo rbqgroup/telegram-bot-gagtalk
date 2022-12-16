@@ -54,8 +54,8 @@ queue.doNotRetry(reason => {
 });
 bot.catch((err, ctx) => {
     if (err instanceof TelegramError) {
-        if (err.description == 'Bad Request: message to delete not found' ||
-            err.description == 'Bad Request: query is too old and response timeout expired or query ID is invalid') {
+        if (err.description.includes('Bad Request: message to delete not found') ||
+            err.description.includes('Bad Request: query is too old')) {
             return;
         }
     }
