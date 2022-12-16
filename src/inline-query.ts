@@ -16,7 +16,6 @@ export async function onInlineQuery(ctx: MyContext<Update.InlineQueryUpdate>) {
         // a list of gags that are wearing in all groups instead of only the correct one.
         .filter(gag => !(
             ctx.inlineQuery.chat_type?.endsWith('group')
-            && wearingGags.size
             && !wearingGags.has(gag.name)
         ))
         .map((gag): InlineQueryResultArticle => {
