@@ -65,10 +65,12 @@ commonCommands.use(
             })));
         }
     }),
-    command('xp', ctx => enqueue(() => ctx.quietQuoteReply(format(Templates.currentExp, {
-        targetUser: markdownTextMention(ctx.targetUser),
-        exp: ctx.targetUser.exp,
-    })))),
+    command('xp', ctx => ctx.targetUser && enqueue(() =>
+        ctx.quietQuoteReply(format(Templates.currentExp, {
+            targetUser: markdownTextMention(ctx.targetUser),
+            exp: ctx.targetUser.exp,
+        }))
+    )),
 );
 
 export { commonCommands };

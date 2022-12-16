@@ -118,7 +118,7 @@ groupCommands.use(enabledGroupChat(
             time > Date.now() ? Templates.timerLockRemainingTime : Templates.timerLockExpired,
             {
                 targetUser: markdownTextMention(ctx.targetUser),
-                time: formatTime(time),
+                time: formatTime(time - Date.now()),
             }
         )));
     }),

@@ -27,6 +27,9 @@ export function enabledGroupChat<C extends MyContext>(
 }
 
 export function markdownTextMention(user: User | TelegramUser) {
+    if (!user) {
+        return '';
+    }
     const firstName = markdownEscape(
         (user as User).firstName ?? (user as TelegramUser).first_name);
     const lastName = markdownEscape(
