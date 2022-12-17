@@ -23,7 +23,7 @@ groupCommands.use(enabledGroupChat(
         const status = ctx.targetUser.groups[ctx.chat.id];
         if (!status.gagName) {
             if (gag) {
-                if (gag.exp <= ctx.user.exp) {
+                if (gag.exp <= ctx.targetUser.exp) {
                     status.gagName = gagName;
                     enqueue(() => ctx.quietReply(format(
                         ctx.user == ctx.targetUser ? Templates.selfGagged : Templates.gagged,
