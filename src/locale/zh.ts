@@ -8,7 +8,7 @@ const Templates = {
     help: `\
 *__使用说明__*
 
-于任意聊天内，在文本框中输入：
+使用 /gag 佩戴口塞后，输入：
 
 \`\`\`
 @${config.botUsername} 要透过口塞说的话…
