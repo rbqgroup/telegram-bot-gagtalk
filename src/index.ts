@@ -17,6 +17,7 @@ import GroupMessageHandlerMiddleware from './middleware/group-message-handler.js
 import commonCommands from './command/common.js';
 import groupCommands from './command/group.js';
 import adminCommands from './command/admin.js';
+import { Update } from 'telegraf/types.js';
 
 const { on, groupChat } = Composer;
 
@@ -44,15 +45,23 @@ bot.use(enabledGroupChat(on('message', GroupMessageHandlerMiddleware)));
 
 bot.on('inline_query', onInlineQuery);
 
-queue.doNotRetry(reason => {
+queue.doNotRetry(_doNotRetry);
+queue.catch(_catch);
+bot.catch(_catch);
+
+bot.launch();
+
+console.log('Bot is now online.');
+
+function _doNotRetry(reason: any) {
     if (reason instanceof TelegramError) {
         if (reason.code == 400) {
             return true;
         }
     }
     return false;
-});
-bot.catch((err, ctx) => {
+}
+function _catch(err: unknown, ctx?: MyContext<Update>) {
     if (err instanceof TelegramError) {
         if (err.code == 400) {
             if (err.description.includes('message to delete not found') ||
@@ -65,13 +74,11 @@ bot.catch((err, ctx) => {
         }
     }
     process.exitCode = 1;
-    console.error('Unhandled error while processing', ctx.update);
+    if (ctx?.update) {
+        console.error('Unhandled error while processing', ctx.update);
+    }
     throw err;
-});
-
-bot.launch();
-
-console.log('Bot is now online.');
+}
 
 function onExit() {
     db.close();

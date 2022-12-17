@@ -1,14 +1,15 @@
 const pendingTasks: Task[] = [];
 let _doNotRetry = (reason: any) => false;
-
-function doNotRetry(predicate: (reason: any) => boolean) {
-    _doNotRetry = predicate;
-}
+let _catch = (err: unknown): void => {
+    throw err;
+};
 
 function enqueue<T>(operation: () => Promise<T>, retry = 10) {
-    return new Promise<T>((resolve, reject) => {
+    const promise = new Promise<T>((resolve, reject) => {
         pendingTasks.push({ retry, operation, resolve, reject });
     });
+    promise.catch(_catch);
+    return promise;
 }
 
 function run(task: Task) {
@@ -33,6 +34,13 @@ const _timer = setInterval(() => {
     }
 }, 40);
 
+function doNotRetry(predicate: (reason: any) => boolean) {
+    _doNotRetry = predicate;
+}
+function $catch(callback: (err: unknown) => void) {
+    _catch = callback;
+}
+
 type Task = {
     retry: number;
     operation: () => Promise<any>;
@@ -41,4 +49,4 @@ type Task = {
 }
 
 export { enqueue };
-export default { enqueue, doNotRetry, _timer };
+export default { enqueue, doNotRetry, catch: $catch, _timer };
