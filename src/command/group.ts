@@ -8,7 +8,7 @@ import { enqueue } from '../util/queue.js';
 import { getActualTimerLockLimit } from '../util/timer-lock.js';
 import { MyContext, MyTextMessageContext } from '../types/context.js';
 import { shortTimeSpanToMilliseconds } from '../util/convert.js';
-import { enabledGroupChat, markdownTextMention } from '../util/telegraf.js';
+import { enabledGroupChat, markdownEscape, markdownTextMention } from '../util/telegraf.js';
 import { users } from '../db.js';
 
 const { on, command } = Composer<MyContext>;
@@ -140,10 +140,10 @@ groupCommands.use(enabledGroupChat(
     command('ranking', assertArgumentsCountExact(0), async ctx => {
         const usersInGroup = (await Promise.all(ctx.group!.usersId.map(id => users.get(id))))
             .filter(user => user && user.exp).sort((a, b) => b.exp - a.exp).slice(0, 20);
-        const text = usersInGroup.reduce((str, user) => `\
-${str}
+        const text = usersInGroup.reduce((str, user) => `${str}
 \`${user.exp.toFixed().padStart(5)}\`  \
-${markdownTextMention(user)}`,
+${markdownEscape(user.lastName ? user.lastName + ' ' : '')}\
+${markdownEscape(user.firstName)}`,
             Templates.expRankingHeader);
         enqueue(() => ctx.quietReply(text));
     }),
