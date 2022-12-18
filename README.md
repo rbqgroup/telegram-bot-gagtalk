@@ -1,14 +1,14 @@
 # Telegram Bot - Gagtalk
 
-一个基于 rbqgroup/gagtalk-mandarin 的 Telegram bot。
+一个基于 [rbqgroup/gagtalk-mandarin](https://github.com/rbqgroup/gagtalk-mandarin) 的 Telegram 口塞 bot。
 
 # 安装
 
-建议使用最新版本 Node.js。
-
-Clone 并编辑 `config.yaml` 后…
-
 ```bash
+git clone https://github.com/rbqgroup/telegram-bot-gagtalk.git
+cd telegram-bot-gagtalk
+mkdir data
+cp config-template.yaml data/config.yaml
 npm i
-npm run start
+npm start
 ```
