@@ -12,20 +12,18 @@ import { enabledGroupChat, markdownEscape, markdownTextMention } from '../util/t
 import { users } from '../db.js';
 
 const { on, command } = Composer<MyContext>;
-const { gagList } = config;
 
 const groupCommands = new Composer<MyContext>();
 
 groupCommands.use(enabledGroupChat(
     command('gag', assertArgumentsAtMost(1), permissionCheck, ctx => {
         const gagName = ctx.arguments[0] || ctx.targetUser.defaultGagName;
-        const gag = gagList.find(gag => gag.name == gagName);
+        const gag = config.gagList.find(gag => gag.name == gagName);
         const status = ctx.targetUser.groups[ctx.chat.id];
         if (!status.gagName) {
             if (gag) {
                 if (gag.exp <= ctx.targetUser.exp) {
                     status.gagName = gagName;
-                    enqueue(() => ctx.deleteMessage(ctx.message.message_id));
                     enqueue(() => ctx.quietReply(format(
                         ctx.targetIsSelf() ? Templates.selfGagged : Templates.gagged,
                         {
@@ -35,7 +33,6 @@ groupCommands.use(enabledGroupChat(
                         }
                     )));
                 } else {
-                    enqueue(() => ctx.deleteMessage(ctx.message.message_id));
                     enqueue(() => ctx.toast(format(Templates.expNotEnough, {
                         targetUser: markdownTextMention(ctx.targetUser),
                         gagName,
@@ -47,39 +44,45 @@ groupCommands.use(enabledGroupChat(
                 throw new ArgumentInvalidError(0, gagName);
             }
         } else {
-            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
             enqueue(() => ctx.toast(format(Templates.alreadyGagged, {
                 targetUser: markdownTextMention(ctx.targetUser),
                 gagName: status.gagName,
             })));
         }
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
     }),
-    command('ungag', assertArgumentsCountExact(0), permissionCheck, ctx => {
-        const { gagName, timerLockedUntil } = ctx.targetUser.groups[ctx.chat.id];
-        if (timerLockedUntil > Date.now()) {
-            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-            enqueue(() => ctx.toast(format(Templates.ungagPreventedByLock, {
-                targetUser: markdownTextMention(ctx.targetUser),
-                time: formatTime(timerLockedUntil - Date.now()),
-            })));
-        } else {
-            if (gagName) {
-                ctx.targetUser.groups[ctx.chat.id].gagName = '';
-                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-                enqueue(() => ctx.quietReply(format(
-                    ctx.targetIsSelf() ? Templates.selfUngagged : Templates.ungagged,
-                    {
-                        user: markdownTextMention(ctx.user),
-                        targetUser: markdownTextMention(ctx.targetUser),
-                    }
-                )));
-            } else {
-                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-                enqueue(() => ctx.toast(format(Templates.notGagged, {
+    command('ungag', assertArgumentsCountExact(0), permissionCheck, async ctx => {
+        const { gagName, timerLockedUntil, ownerLockedBy } = ctx.targetUser.groups[ctx.chat.id];
+        if (gagName) {
+            if (timerLockedUntil > Date.now()) {
+                enqueue(() => ctx.toast(format(Templates.ungagPreventedByTimerLock, {
                     targetUser: markdownTextMention(ctx.targetUser),
+                    time: formatTime(timerLockedUntil - Date.now()),
                 })));
+            } else {
+                if (ownerLockedBy) {
+                    const ownerUser = await users.get(ownerLockedBy);
+                    enqueue(() => ctx.toast(format(Templates.ungagPreventedByOwnerLock, {
+                        targetUser: markdownTextMention(ctx.targetUser),
+                        ownerUser: markdownTextMention(ownerUser),
+                    })));
+                } else {
+                    ctx.targetUser.groups[ctx.chat.id].gagName = '';
+                    enqueue(() => ctx.quietReply(format(
+                        ctx.targetIsSelf() ? Templates.selfUngagged : Templates.ungagged,
+                        {
+                            user: markdownTextMention(ctx.user),
+                            targetUser: markdownTextMention(ctx.targetUser),
+                        }
+                    )));
+                }
             }
+        } else {
+            enqueue(() => ctx.toast(format(Templates.notGagged, {
+                targetUser: markdownTextMention(ctx.targetUser),
+            })));
         }
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
     }),
     command('timeradd', assertArgumentsAtMost(1), permissionCheck, ctx => {
         const time = ctx.castArgument(0, shortTimeSpanToMilliseconds) ?? 600000;
@@ -96,7 +99,6 @@ groupCommands.use(enabledGroupChat(
                 ),
             );
             const remainingTime = status.timerLockedUntil - Date.now();
-            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
             enqueue(() => ctx.quietReply(format(
                 ctx.targetIsSelf() ? Templates.selfTimerLockAdded : Templates.timerLockAdded,
                 {
@@ -107,11 +109,11 @@ groupCommands.use(enabledGroupChat(
                 }
             )));
         } else {
-            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
             enqueue(() => ctx.toast(format(Templates.timerLockAddFailed, {
                 targetUser: markdownTextMention(ctx.targetUser),
             })));
         }
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
     }),
     command('timerremaining', assertArgumentsCountExact(0), ctx => {
         const time = ctx.targetUser.groups[ctx.chat.id].timerLockedUntil;
@@ -123,6 +125,52 @@ groupCommands.use(enabledGroupChat(
                 time: formatTime(time - Date.now()),
             }
         )));
+    }),
+    command('lock', assertArgumentsCountExact(0), permissionCheck, async ctx => {
+        const status = ctx.targetUser.groups[ctx.chat.id];
+        if (status.ownerLockedBy) {
+            const ownerUser = await users.get(status.ownerLockedBy);
+            enqueue(() => ctx.toast(format(Templates.alreadyOwnerLocked, {
+                targetUser: markdownTextMention(ctx.targetUser),
+                ownerUser: markdownTextMention(ownerUser),
+            })));
+        } else {
+            if (ctx.targetUser.trustedUsersId.includes(ctx.user.id) || ctx.targetIsSelf()) {
+                status.ownerLockedBy = ctx.user.id;
+                enqueue(() => ctx.quietReply(format(Templates.ownerLocked, {
+                    user: markdownTextMention(ctx.user),
+                    targetUser: markdownTextMention(ctx.targetUser),
+                })));
+            } else {
+                enqueue(() => ctx.toast(format(Templates.notTrusted, {
+                    user: markdownTextMention(ctx.user),
+                    targetUser: markdownTextMention(ctx.targetUser),
+                })));
+            }
+        }
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+    }),
+    command('unlock', assertArgumentsCountExact(0), permissionCheck, async ctx => {
+        const status = ctx.targetUser.groups[ctx.chat.id];
+        if (status.ownerLockedBy) {
+            const ownerUser = await users.get(status.ownerLockedBy);
+            if (ctx.user.id == ownerUser.id) {
+                status.ownerLockedBy = 0;
+                enqueue(() => ctx.quietReply(format(Templates.ownerLockRemoved, {
+                    user: markdownTextMention(ctx.user),
+                    targetUser: markdownTextMention(ctx.targetUser),
+                })));
+            } else {
+                enqueue(() => ctx.toast(format(Templates.ownerLockRemoveFailed, {
+                    ownerUser: markdownTextMention(ownerUser),
+                })));
+            }
+        } else {
+            enqueue(() => ctx.toast(format(Templates.notOwnerLocked, {
+                targetUser: markdownTextMention(ctx.targetUser),
+            })));
+        }
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
     }),
     command('permission',
         assertArgumentsAtMost(1),
@@ -139,7 +187,7 @@ groupCommands.use(enabledGroupChat(
                 enqueue(() => ctx.toast(Templates.succeed));
             } else {
                 enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-                enqueue(() => ctx.quietQuoteReply(format(Templates.currentPermission, {
+                enqueue(() => ctx.quietReply(format(Templates.currentPermission, {
                     targetUser: markdownTextMention(ctx.targetUser),
                     permission: ctx.targetUser.groups[ctx.chat.id].permission,
                 })));

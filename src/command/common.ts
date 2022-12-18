@@ -9,13 +9,12 @@ import { markdownTextMention } from '../util/telegraf.js';
 import { ArgumentInvalidError, assertArgumentsAtMost, assertArgumentsCountExact } from '../middleware/arguments.js';
 
 const { command } = Composer<MyContext>;
-const { gagList } = config;
-const sortedGagList = [...config.gagList].sort((a, b) => a.exp - b.exp);
 
 const commonCommands = new Composer<MyContext>();
 
 commonCommands.use(
     command('gaglist', assertArgumentsCountExact(0), ctx => {
+        const sortedGagList = [...config.gagList].sort((a, b) => a.exp - b.exp);
         const text = sortedGagList.reduce(
             (str, gag) => `${str}\n\`${gag.exp.toFixed().padStart(4)}\` \`${gag.name}\``,
             Templates.gagListHeader);
@@ -30,8 +29,8 @@ commonCommands.use(
                 enqueue(() => ctx.toast(Templates.forbidChangeOtherUsersSettings));
                 return;
             }
-            if (gagList.map(gag => gag.name).includes(gagName)) {
-                const gag = gagList.find(gag => gag.name == gagName)!;
+            if (config.gagList.map(gag => gag.name).includes(gagName)) {
+                const gag = config.gagList.find(gag => gag.name == gagName)!;
                 if (gag.exp <= ctx.user.exp) {
                     ctx.user.defaultGagName = gagName;
                     enqueue(() => ctx.toast(Templates.succeed));
@@ -49,7 +48,7 @@ commonCommands.use(
             }
         } else {
             enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-            enqueue(() => ctx.quietQuoteReply(format(Templates.currentGagPref, {
+            enqueue(() => ctx.quietReply(format(Templates.currentGagPref, {
                 targetUser: markdownTextMention(ctx.targetUser),
                 gagName: ctx.targetUser.defaultGagName,
             })));
@@ -68,7 +67,7 @@ commonCommands.use(
             enqueue(() => ctx.toast(Templates.succeed));
         } else {
             enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-            enqueue(() => ctx.quietQuoteReply(format(Templates.currentTimerLockLimit, {
+            enqueue(() => ctx.quietReply(format(Templates.currentTimerLockLimit, {
                 targetUser: markdownTextMention(ctx.targetUser),
                 userTimeLimit: ctx.targetUser.timerLockLimit
                     ? formatTime(ctx.targetUser.timerLockLimit)
@@ -79,7 +78,7 @@ commonCommands.use(
     }),
     command('xp', assertArgumentsCountExact(0), ctx => ctx.targetUser && (
         enqueue(() => ctx.deleteMessage(ctx.message.message_id)),
-        enqueue(() => ctx.quietQuoteReply(format(Templates.currentExp, {
+        enqueue(() => ctx.quietReply(format(Templates.currentExp, {
             targetUser: markdownTextMention(ctx.targetUser),
             exp: ctx.targetUser.exp,
         })))

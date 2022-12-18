@@ -14,12 +14,12 @@ type Config = Readonly<{
     }>[];
 }>;
 
-let config: Config = null!;
+let config: Config = {} as Config;
 
 await loadConfig();
 
 async function loadConfig() {
-    config = parse(await readFile('config.yaml', { encoding: 'utf8' })) as Config;
+    Object.assign(config, parse(await readFile('config.yaml', { encoding: 'utf8' })));
 }
 
 export { config, loadConfig };

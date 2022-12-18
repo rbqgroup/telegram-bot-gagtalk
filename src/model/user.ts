@@ -1,8 +1,6 @@
 import config from '../config.js';
 import { UserGroupStatus } from './user-group-status.js';
 
-const { gagList } = config;
-
 export class User {
 
     id!: number;
@@ -12,7 +10,7 @@ export class User {
 
     createdTime: number = Date.now();
 
-    defaultGagName: string = gagList.find(gag => !gag.exp)?.name ?? '';
+    defaultGagName: string = config.gagList.find(gag => !gag.exp)?.name ?? '';
 
     exp: number = 0;
     expLastEarnedTime: number = 0;

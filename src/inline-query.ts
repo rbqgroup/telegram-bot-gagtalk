@@ -4,13 +4,11 @@ import config from './config.js';
 import { MyContext } from './types/context.js';
 import { format, Templates } from './locale.js';
 
-const { gagList } = config;
-
 export async function onInlineQuery(ctx: MyContext<Update.InlineQueryUpdate>) {
     const wearingGags = new Set(
         Object.values(ctx.user.groups).map(group => group.gagName).filter(name => name)
     );
-    let results = gagList
+    let results = config.gagList
         // If the user is wearing a gag, only wearing gags will show in group chats.
         // Sadly we can't get chat ID from inline queries, so this will be
         // a list of gags that are wearing in all groups instead of only the correct one.

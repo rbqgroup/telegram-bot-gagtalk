@@ -16,10 +16,9 @@ const Templates = {
 \`\`\`
 
 *__命令列表__*
-大部分命令可回复消息以选择目标。
-如无目标或目标无效，则目标默认为自己。
+大部分命令可回复消息以选择目标。如无目标或目标无效，则目标默认为自己。
 方括号内为可选参数，可以不填。
-时间格式为整数 \\+ 单位（d,h,m,s），可任意组合，如 1h90m
+时间格式为整数 \\+ 单位（d,h,m,s），可任意组合，如 1h90m。
 
 /gag \\[口塞名称\\] \\- 戴口塞（群）
 /ungag \\- 摘口塞（群）
@@ -31,12 +30,19 @@ const Templates = {
 /timerremaining \\- 查询定时锁剩余时间（群）
 /timerlimit \\[时间\\] \\- 设置定时锁时间上限
 
+/lock \\- 主人锁上锁，只有上锁的人有钥匙（群）
+/unlock \\- 主人锁解锁（群）
+
 /xp \\- 查询绒度
 /ranking \\- 绒度排行榜（群）
 
 /permission \\- 设置其他人对你的权限（群）
 /trust \\- 信任一个用户（群）
 /distrust \\- 取消信任一个用户（群）
+
+*__冷知识__*
+定时锁和时间锁可以共存。
+（欢迎提供更多关于冷知识的建议）
 `,
     gagHelp: `\
 *__口塞列表__（效果从弱到强）*
@@ -115,13 +121,20 @@ $targetUser的绒度所允许的上限：$expTimeLimit
     timerLockAddFailed: '❌$targetUser没戴着口塞呢。',
     timerLockRemainingTime: '$targetUser的口塞上的定时锁还剩 $time。',
     timerLockExpired: '$targetUser的口塞现在没有上锁。',
+    ownerLocked: '✅$user给$targetUser的口塞上了锁，并把钥匙保管了起来。',
+    alreadyOwnerLocked: '❌$targetUser的口塞上已经有$ownerUser的锁了。',
+    ownerLockRemoved: '✅$user用钥匙解锁了$targetUser的口塞。',
+    ownerLockRemoveFailed: '❌ 你没有钥匙！钥匙在$ownerUser手上。',
+    notOwnerLocked: '❌$targetUser的口塞没有被主人锁锁着。',
+    notTrusted: '❌$user不在$targetUser的信任列表里。',
     gagged: '✅$user给$targetUser戴上了$gagName。',
     selfGagged: '✅$user给自己戴上了$gagName。',
     alreadyGagged: '❌$targetUser已经戴着$gagName了。',
     notGagged: '❌$targetUser没戴着口塞呢。',
     ungagged: '✅$user摘下了$targetUser的口塞。',
     selfUngagged: '✅$user摘下了自己的口塞。',
-    ungagPreventedByLock: '❌$targetUser的口塞上的定时锁还剩 $time。',
+    ungagPreventedByTimerLock: '❌$targetUser的口塞上的定时锁还剩 $time。',
+    ungagPreventedByOwnerLock: '❌$targetUser的口塞被锁住了！钥匙在$ownerUser手上。',
     currentExp: '$targetUser的绒度是 $exp',
     expNotEnough: '❌$targetUser的绒度不足。$gagName需要 $required，而$targetUser只有 $actual。',
     expRankingHeader: '本群最绒的绒布球们：\n',
