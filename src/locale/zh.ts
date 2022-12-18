@@ -81,6 +81,8 @@ const Templates = {
     argInvalid: '❌ 参数 $index "$value" 写错了！',
     argsMismatch: '❌ 这个命令要 $expected 个参数，你写了 $actual 个。',
 
+    notEnabled: '❌ Bot 管理员未开启本群的口塞玩法。',
+
     viaBotPrefix: '（透过$gagName）',
     viaBotEmptyText: '（透过$gagName呜咽了一声）',
     expGained: `\
@@ -95,16 +97,17 @@ $user的绒度增加了 1 点。
 （请输入 @$botName 来发送消息。）
 `,
 
+    forbidChangeOtherUsersSettings: '❌ 不许修改其他人的设置！',
     gagListHeader: '*__口塞名称与所需绒度__*\n（点击名称以复制）\n',
-    currentGagPref: '你喜欢戴：__$gagName__\n如要更改，在此命令后加上口塞名称。',
+    currentGagPref: '$targetUser喜欢戴：__$gagName__\n如要更改，在此命令后加上口塞名称。',
     currentPermission: `\
-你当前的权限为：__$permission__
+$targetUser当前的权限为：__$permission__
 如要更改，在此命令后加上 self, trusted, everyone 的其中之一。
 `,
     noPermission: '❌$targetUser目前不想被群友们调教。',
     currentTimerLockLimit: `\
-你设置的定时锁时间上限：__$userTimeLimit__
-你的绒度所允许的上限：$expTimeLimit
+$targetUser设置的定时锁时间上限：__$userTimeLimit__
+$targetUser的绒度所允许的上限：$expTimeLimit
 （取两者中较小的一个。）
 `,
     timerLockAdded: '✅$user给$targetUser的口塞上的定时锁加了 $time，剩余时间：$remainingTime。',
@@ -122,6 +125,11 @@ $user的绒度增加了 1 点。
     currentExp: '$targetUser的绒度是 $exp',
     expNotEnough: '❌$targetUser的绒度不足。$gagName需要 $required，而$targetUser只有 $actual。',
     expRankingHeader: '本群最绒的绒布球们：\n',
+
+    adminUnlockedUser: `\
+$targetUser的口塞已解锁并将权限重置为 self。
+$targetUser的绒度扣除了 $deductedExp
+`,
 };
 
 function formatTime(time: number) {

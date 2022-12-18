@@ -6,7 +6,7 @@ import { expToTimerLockCap } from '../util/timer-lock.js';
 import { MyContext } from '../types/context.js';
 import { shortTimeSpanToMilliseconds } from '../util/convert.js';
 import { markdownTextMention } from '../util/telegraf.js';
-import { assertArgumentsAtMost, assertArgumentsCountExact } from '../middleware/arguments.js';
+import { ArgumentInvalidError, assertArgumentsAtMost, assertArgumentsCountExact } from '../middleware/arguments.js';
 
 const { command } = Composer<MyContext>;
 const { gagList } = config;
@@ -19,11 +19,17 @@ commonCommands.use(
         const text = sortedGagList.reduce(
             (str, gag) => `${str}\n\`${gag.exp.toFixed().padStart(4)}\` \`${gag.name}\``,
             Templates.gagListHeader);
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
         enqueue(() => ctx.quietReply(text));
     }),
     command('gagpref', assertArgumentsAtMost(1), ctx => {
         const gagName = ctx.arguments.shift();
         if (gagName) {
+            if (!ctx.targetIsSelf()) {
+                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+                enqueue(() => ctx.toast(Templates.forbidChangeOtherUsersSettings));
+                return;
+            }
             if (gagList.map(gag => gag.name).includes(gagName)) {
                 const gag = gagList.find(gag => gag.name == gagName)!;
                 if (gag.exp <= ctx.user.exp) {
@@ -39,38 +45,44 @@ commonCommands.use(
                     })));
                 }
             } else {
-                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-                enqueue(() => ctx.toast(format(Templates.argInvalid, {
-                    index: 1,
-                    value: gagName,
-                })));
+                throw new ArgumentInvalidError(0, gagName);
             }
         } else {
+            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
             enqueue(() => ctx.quietQuoteReply(format(Templates.currentGagPref, {
-                gagName: ctx.user.defaultGagName,
+                targetUser: markdownTextMention(ctx.targetUser),
+                gagName: ctx.targetUser.defaultGagName,
             })));
         }
     }),
     command('timerlimit', assertArgumentsAtMost(1), ctx => {
         let time = ctx.castArgument(0, shortTimeSpanToMilliseconds);
         if (typeof time == 'number') {
+            if (!ctx.targetIsSelf()) {
+                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+                enqueue(() => ctx.toast(Templates.forbidChangeOtherUsersSettings));
+                return;
+            }
             time = time ? Math.max(600000, time) : 0;
             ctx.user.timerLockLimit = time;
             enqueue(() => ctx.toast(Templates.succeed));
         } else {
+            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
             enqueue(() => ctx.quietQuoteReply(format(Templates.currentTimerLockLimit, {
-                userTimeLimit: ctx.user.timerLockLimit
-                    ? formatTime(ctx.user.timerLockLimit)
+                targetUser: markdownTextMention(ctx.targetUser),
+                userTimeLimit: ctx.targetUser.timerLockLimit
+                    ? formatTime(ctx.targetUser.timerLockLimit)
                     : 'none',
-                expTimeLimit: formatTime(expToTimerLockCap(ctx.user.exp)),
+                expTimeLimit: formatTime(expToTimerLockCap(ctx.targetUser.exp)),
             })));
         }
     }),
-    command('xp', assertArgumentsCountExact(0), ctx => ctx.targetUser && enqueue(() =>
-        ctx.quietQuoteReply(format(Templates.currentExp, {
+    command('xp', assertArgumentsCountExact(0), ctx => ctx.targetUser && (
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id)),
+        enqueue(() => ctx.quietQuoteReply(format(Templates.currentExp, {
             targetUser: markdownTextMention(ctx.targetUser),
             exp: ctx.targetUser.exp,
-        }))
+        })))
     )),
 );
 

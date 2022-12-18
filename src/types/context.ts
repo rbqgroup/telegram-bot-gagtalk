@@ -17,6 +17,7 @@ export interface MyContext<U extends Update = Update> extends Context<U> {
     quietQuoteReply: (markdown: string, extra?: ExtraReplyMessage) => Promise<Message.TextMessage>;
     /** Send an auto-delete message if inside a group. */
     toast: (markdown: string, ms?: number, extra?: ExtraReplyMessage) => Promise<Message.TextMessage>;
+    targetIsSelf: () => boolean;
 }
 
 export type MyMessageContext<M extends Message = Message> = MyContext<Update.MessageUpdate<M>>;

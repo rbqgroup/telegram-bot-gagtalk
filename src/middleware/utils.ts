@@ -24,5 +24,6 @@ export default async function UtilsMiddleware(ctx: MyContext, next: () => Promis
         }
         return msg;
     };
+    ctx.targetIsSelf = () => ctx.user?.id == ctx.targetUser?.id;
     await next();
 }

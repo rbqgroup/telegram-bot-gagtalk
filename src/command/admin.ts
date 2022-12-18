@@ -2,11 +2,11 @@ import { Composer } from 'telegraf';
 import { message } from 'telegraf/filters';
 import config from '../config.js';
 import { groups, users } from '../db.js';
-import { Templates } from '../locale.js';
+import { format, Templates } from '../locale.js';
 import { enqueue } from '../util/queue.js';
 import { MyContext } from '../types/context.js';
 import { toInt } from '../util/convert.js';
-import { subcommand } from '../util/telegraf.js';
+import { markdownTextMention, subcommand } from '../util/telegraf.js';
 
 const { on, command, groupChat, acl } = Composer<MyContext>;
 
@@ -48,6 +48,22 @@ adminCommands.use(acl(config.admins,
                 const exp = ctx.castArgument(0, toInt);
                 ctx.targetUser.exp = exp;
                 enqueue(() => ctx.toast(Templates.succeed));
+            }),
+            subcommand('unlock', ctx => {
+                const status = ctx.targetUser.groups[ctx.chat.id];
+                if (status && status.timerLockedUntil > Date.now()) {
+                    const deductedExp = Math.min(
+                        ctx.targetUser.exp,
+                        Math.ceil((status.timerLockedUntil - Date.now()) / 600000),
+                    );
+                    ctx.targetUser.exp -= deductedExp;
+                    status.timerLockedUntil = 0;
+                    status.permission = 'self';
+                    enqueue(() => ctx.quietReply(format(Templates.adminUnlockedUser, {
+                        targetUser: markdownTextMention(ctx.targetUser),
+                        deductedExp,
+                    })));
+                }
             }),
         )),
     ),

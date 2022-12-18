@@ -25,8 +25,9 @@ groupCommands.use(enabledGroupChat(
             if (gag) {
                 if (gag.exp <= ctx.targetUser.exp) {
                     status.gagName = gagName;
+                    enqueue(() => ctx.deleteMessage(ctx.message.message_id));
                     enqueue(() => ctx.quietReply(format(
-                        ctx.user == ctx.targetUser ? Templates.selfGagged : Templates.gagged,
+                        ctx.targetIsSelf() ? Templates.selfGagged : Templates.gagged,
                         {
                             user: markdownTextMention(ctx.user),
                             targetUser: markdownTextMention(ctx.targetUser),
@@ -64,8 +65,9 @@ groupCommands.use(enabledGroupChat(
         } else {
             if (gagName) {
                 ctx.targetUser.groups[ctx.chat.id].gagName = '';
+                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
                 enqueue(() => ctx.quietReply(format(
-                    ctx.user == ctx.targetUser ? Templates.selfUngagged : Templates.ungagged,
+                    ctx.targetIsSelf() ? Templates.selfUngagged : Templates.ungagged,
                     {
                         user: markdownTextMention(ctx.user),
                         targetUser: markdownTextMention(ctx.targetUser),
@@ -94,10 +96,9 @@ groupCommands.use(enabledGroupChat(
                 ),
             );
             const remainingTime = status.timerLockedUntil - Date.now();
+            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
             enqueue(() => ctx.quietReply(format(
-                ctx.user == ctx.targetUser
-                    ? Templates.selfTimerLockAdded
-                    : Templates.timerLockAdded,
+                ctx.targetIsSelf() ? Templates.selfTimerLockAdded : Templates.timerLockAdded,
                 {
                     user: markdownTextMention(ctx.user),
                     targetUser: markdownTextMention(ctx.targetUser),
@@ -114,6 +115,7 @@ groupCommands.use(enabledGroupChat(
     }),
     command('timerremaining', assertArgumentsCountExact(0), ctx => {
         const time = ctx.targetUser.groups[ctx.chat.id].timerLockedUntil;
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
         enqueue(() => ctx.quietReply(format(
             time > Date.now() ? Templates.timerLockRemainingTime : Templates.timerLockExpired,
             {
@@ -128,11 +130,18 @@ groupCommands.use(enabledGroupChat(
         ctx => {
             const permission = ctx.arguments.shift() as Permission | undefined;
             if (permission) {
+                if (!ctx.targetIsSelf()) {
+                    enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+                    enqueue(() => ctx.toast(Templates.forbidChangeOtherUsersSettings));
+                    return;
+                }
                 ctx.user.groups[ctx.chat.id].permission = permission;
                 enqueue(() => ctx.toast(Templates.succeed));
             } else {
+                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
                 enqueue(() => ctx.quietQuoteReply(format(Templates.currentPermission, {
-                    permission: ctx.user.groups[ctx.chat.id].permission,
+                    targetUser: markdownTextMention(ctx.targetUser),
+                    permission: ctx.targetUser.groups[ctx.chat.id].permission,
                 })));
             }
         },
@@ -145,12 +154,12 @@ groupCommands.use(enabledGroupChat(
 ${markdownEscape(user.lastName ? user.lastName + ' ' : '')}\
 ${markdownEscape(user.firstName)}`,
             Templates.expRankingHeader);
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
         enqueue(() => ctx.quietReply(text));
     }),
     on(message('text', 'reply_to_message'),
         command('trust', assertArgumentsCountExact(0), ctx => {
-            if (!ctx.user.trustedUsersId.includes(ctx.targetUser.id) &&
-                ctx.targetUser != ctx.user) {
+            if (!ctx.user.trustedUsersId.includes(ctx.targetUser.id) && !ctx.targetIsSelf()) {
                 ctx.user.trustedUsersId.push(ctx.targetUser.id);
             }
             enqueue(() => ctx.toast(Templates.succeed));
@@ -173,10 +182,10 @@ async function permissionCheck(ctx: MyTextMessageContext, next: () => Promise<vo
             break;
         case 'trusted':
             allowed = ctx.targetUser.trustedUsersId.includes(ctx.user.id)
-                || ctx.targetUser.id == ctx.user.id;
+                || ctx.targetIsSelf();
             break;
         case 'self':
-            allowed = ctx.targetUser.id == ctx.user.id;
+            allowed = ctx.targetIsSelf();
             break;
     }
     if (allowed) {
