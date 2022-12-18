@@ -1,6 +1,6 @@
 import { Composer } from 'telegraf';
 import { message } from 'telegraf/filters';
-import config from '../config.js';
+import config, { loadConfig } from '../config.js';
 import { groups, users } from '../db.js';
 import { format, Templates } from '../locale.js';
 import { enqueue } from '../util/queue.js';
@@ -14,6 +14,12 @@ const adminCommands = new Composer<MyContext>();
 
 adminCommands.use(acl(config.admins,
     command('admin',
+        subcommand('config',
+            subcommand('reload', async ctx => {
+                loadConfig();
+                enqueue(() => ctx.toast(Templates.succeed));
+            }),
+        ),
         subcommand('group', groupChat(
             subcommand('reset', async ctx => {
                 await groups.del(ctx.group!.id);
