@@ -19,7 +19,7 @@ let config: Config = {} as Config;
 await loadConfig();
 
 async function loadConfig() {
-    Object.assign(config, parse(await readFile('config.yaml', { encoding: 'utf8' })));
+    Object.assign(config, parse(await readFile('data/config.yaml', { encoding: 'utf8' })));
 }
 
 export { config, loadConfig };
