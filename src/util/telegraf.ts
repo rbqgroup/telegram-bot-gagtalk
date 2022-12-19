@@ -1,6 +1,6 @@
 import { Composer, Middleware, MiddlewareFn } from 'telegraf';
 import { NonemptyReadonlyArray } from 'telegraf/typings/util.js';
-import { User as TelegramUser } from 'typegram';
+import { User as TelegramUser, Chat } from 'typegram';
 import { User } from '../model/user.js';
 import { MyContext, MyTextMessageContext } from '../types/context.js';
 
@@ -42,4 +42,23 @@ export function markdownEscape(str?: string) {
         ? '_*[]()~`>#+-=|{}.!'.split('')
             .reduce((str, char) => str.replaceAll(char, '\\' + char), str)
         : str;
+}
+
+export function getTelegramUserInfo(
+    user: TelegramUser | Chat.ChannelChat,
+): Pick<User, 'id' | 'username' | 'firstName' | 'lastName'> {
+    if ('type' in user) {
+        return {
+            id: user.id,
+            username: user.username,
+            firstName: user.title,
+        };
+    } else {
+        return {
+            id: user.id,
+            username: user.username,
+            firstName: user.first_name,
+            lastName: user.last_name,
+        };
+    }
 }

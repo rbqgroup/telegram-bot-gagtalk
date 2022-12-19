@@ -1,6 +1,8 @@
+import { Chat } from 'typegram';
 import { users } from '../db.js';
 import { User } from '../model/user.js';
 import { MyMessageContext } from '../types/context.js';
+import { getTelegramUserInfo } from '../util/telegraf.js';
 
 /** Same as UserMiddleware, but for message reply target users. */
 export default async function TargetUserMiddleware(
@@ -9,21 +11,22 @@ export default async function TargetUserMiddleware(
 ) {
     if ('reply_to_message' in ctx.message &&
         ctx.message.reply_to_message &&
-        'from' in ctx.message.reply_to_message &&
-        ctx.message.reply_to_message.from &&
-        !ctx.message.reply_to_message.from.is_bot
+        'from' in ctx.message.reply_to_message && (
+            ctx.message.reply_to_message.from?.is_bot === false ||
+            ctx.message.reply_to_message.sender_chat?.type == 'channel'
+        )
     ) {
-        const { id, username, first_name, last_name } = ctx.message.reply_to_message.from;
-        if (id && id != ctx.user.id) {
+        const userInfo = getTelegramUserInfo(
+            ctx.message.reply_to_message.sender_chat as Chat.ChannelChat | undefined
+            ?? ctx.message.reply_to_message.from!
+        );
+        if (userInfo.id && userInfo.id != ctx.user.id) {
             try {
-                ctx.targetUser = await users.get(id);
+                ctx.targetUser = await users.get(userInfo.id);
             } catch {
                 ctx.targetUser = new User();
             }
-            ctx.targetUser.id = id;
-            ctx.targetUser.firstName = first_name;
-            ctx.targetUser.lastName = last_name;
-            ctx.targetUser.username = username;
+            Object.assign(ctx.targetUser, userInfo);
         }
     }
     ctx.targetUser ??= ctx.user;

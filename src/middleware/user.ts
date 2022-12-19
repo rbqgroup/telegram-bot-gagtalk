@@ -3,6 +3,7 @@ import { users } from '../db.js';
 import { UserGroupStatus } from '../model/user-group-status.js';
 import { User } from '../model/user.js';
 import { MyContext, MyMessageContext } from '../types/context.js';
+import { getTelegramUserInfo } from '../util/telegraf.js';
 
 /** Add user session to ctx and update user info after a succeed request. */
 export default async function UserMiddleware(
@@ -14,10 +15,10 @@ export default async function UserMiddleware(
     } catch {
         ctx.user = new User();
     }
-    ctx.user.id = ctx.from.id;
-    ctx.user.firstName = ctx.from.first_name;
-    ctx.user.lastName = ctx.from.last_name;
-    ctx.user.username = ctx.from.username;
+    const telegramUser =
+        ctx.inlineQuery?.from
+        ?? (ctx.senderChat?.type == 'channel' ? ctx.senderChat : ctx.from);
+    Object.assign(ctx.user, getTelegramUserInfo(telegramUser));
     if (ctx.chat?.type == 'group' || ctx.chat?.type == 'supergroup') {
         ctx.user.groups[ctx.chat.id] ??= new UserGroupStatus();
     }
