@@ -109,7 +109,7 @@ groupCommands.use(enabledGroupChat(
                 }
             )));
         } else {
-            enqueue(() => ctx.toast(format(Templates.timerLockAddFailed, {
+            enqueue(() => ctx.toast(format(Templates.notGagged, {
                 targetUser: markdownTextMention(ctx.targetUser),
             })));
         }
@@ -136,11 +136,17 @@ groupCommands.use(enabledGroupChat(
             })));
         } else {
             if (ctx.targetUser.trustedUsersId.includes(ctx.user.id) || ctx.targetIsSelf()) {
-                status.ownerLockedBy = ctx.user.id;
-                enqueue(() => ctx.quietReply(format(Templates.ownerLocked, {
-                    user: markdownTextMention(ctx.user),
-                    targetUser: markdownTextMention(ctx.targetUser),
-                })));
+                if (status.gagName) {
+                    status.ownerLockedBy = ctx.user.id;
+                    enqueue(() => ctx.quietReply(format(Templates.ownerLocked, {
+                        user: markdownTextMention(ctx.user),
+                        targetUser: markdownTextMention(ctx.targetUser),
+                    })));
+                } else {
+                    enqueue(() => ctx.toast(format(Templates.notGagged, {
+                        targetUser: markdownTextMention(ctx.targetUser),
+                    })));
+                }
             } else {
                 enqueue(() => ctx.toast(format(Templates.notTrusted, {
                     user: markdownTextMention(ctx.user),

@@ -118,7 +118,6 @@ $targetUser的绒度所允许的上限：$expTimeLimit
 `,
     timerLockAdded: '✅$user给$targetUser的口塞上的定时锁加了 $time，剩余时间：$remainingTime。',
     selfTimerLockAdded: '✅$user给自己的口塞上的定时锁加了 $time，剩余时间：$remainingTime。',
-    timerLockAddFailed: '❌$targetUser没戴着口塞呢。',
     timerLockRemainingTime: '$targetUser的口塞上的定时锁还剩 $time。',
     timerLockExpired: '$targetUser的口塞现在没有上锁。',
     ownerLocked: '✅$user给$targetUser的口塞上了锁，并把钥匙保管了起来。',
