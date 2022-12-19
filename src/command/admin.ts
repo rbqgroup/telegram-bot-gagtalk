@@ -55,22 +55,29 @@ adminCommands.use(acl(config.admins,
                 ctx.targetUser.exp = exp;
                 enqueue(() => ctx.toast(Templates.succeed));
             }),
-            subcommand('unlock', ctx => {
-                const status = ctx.targetUser.groups[ctx.chat.id];
-                if (status && status.timerLockedUntil > Date.now()) {
-                    const deductedExp = Math.min(
-                        ctx.targetUser.exp,
-                        Math.ceil((status.timerLockedUntil - Date.now()) / 600000),
-                    );
-                    ctx.targetUser.exp -= deductedExp;
-                    status.timerLockedUntil = 0;
-                    status.permission = 'self';
-                    enqueue(() => ctx.quietReply(format(Templates.adminUnlockedUser, {
-                        targetUser: markdownTextMention(ctx.targetUser),
-                        deductedExp,
-                    })));
-                }
-            }),
+            subcommand('unlock',
+                subcommand('timerlock', ctx => {
+                    const status = ctx.targetUser.groups[ctx.chat.id];
+                    if (status && status.timerLockedUntil > Date.now()) {
+                        const deductedExp = Math.min(
+                            ctx.targetUser.exp,
+                            Math.ceil((status.timerLockedUntil - Date.now()) / 600000),
+                        );
+                        ctx.targetUser.exp -= deductedExp;
+                        status.timerLockedUntil = 0;
+                        status.permission = 'self';
+                        enqueue(() => ctx.quietReply(format(Templates.adminUnlockedUser, {
+                            targetUser: markdownTextMention(ctx.targetUser),
+                            deductedExp,
+                        })));
+                    }
+                }),
+                subcommand('ownerlock', ctx => {
+                    const status = ctx.targetUser.groups[ctx.chat.id];
+                    status.ownerLockedBy = 0;
+                    enqueue(() => ctx.quietReply(Templates.succeed));
+                }),
+            ),
         )),
     ),
 ));
