@@ -1,6 +1,8 @@
 token: 
 botUsername: 
+
 expGainCooldown: 120000
+emoji: false
 
 admins:
 - 0

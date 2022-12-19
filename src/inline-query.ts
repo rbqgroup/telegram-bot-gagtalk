@@ -17,7 +17,9 @@ export async function onInlineQuery(ctx: MyContext<Update.InlineQueryUpdate>) {
             && !wearingGags.has(gag.name)
         ))
         .map((gag): InlineQueryResultArticle => {
-            const garbled = garble(ctx.inlineQuery.query, GagTypes[gag.type]);
+            const garbled = garble(ctx.inlineQuery.query, GagTypes[gag.type], {
+                emoji: config.emoji,
+            });
             return {
                 type: 'article',
                 id: gag.name,

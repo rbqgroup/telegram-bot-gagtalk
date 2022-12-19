@@ -6,6 +6,7 @@ type Config = Readonly<{
     token: string;
     botUsername: string;
     expGainCooldown: number;
+    emoji: boolean;
     admins: number[];
     gagList: Readonly<{
         name: string;
