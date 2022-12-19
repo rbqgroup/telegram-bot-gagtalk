@@ -13,6 +13,18 @@ const { command } = Composer<MyContext>;
 const commonCommands = new Composer<MyContext>();
 
 commonCommands.use(
+    command('help', ctx => {
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+        enqueue(() => ctx.quietReply(Templates.help));
+    }),
+    command('privacy', ctx => {
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+        enqueue(() => ctx.quietReply(Templates.privacy));
+    }),
+    command('gaghelp', ctx => {
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+        enqueue(() => ctx.quietReply(Templates.gagHelp));
+    }),
     command('allowedstickers', assertArgumentsCountExact(0), ctx => {
         const text = config.allowedStickerSets.map(name => markdownEscape(name)!).reduce(
             (str, name) => `${str}\n${`[${name}](https://t.me/addstickers/${name})`}`,
