@@ -27,7 +27,7 @@ bot.use(ErrorHandlerMiddleware);
 bot.use(UtilsMiddleware);
 bot.on(message('text'), ArgumentsMiddleware as any);
 bot.on(['message', 'inline_query'], UserMiddleware);
-bot.on('message', groupChat(TargetUserMiddleware));
+bot.on('message', TargetUserMiddleware);
 bot.on('message', groupChat(GroupMiddleware));
 
 bot.start(ctx => enqueue(() => ctx.quietReply(Templates.start)));
