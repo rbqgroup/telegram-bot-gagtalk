@@ -183,6 +183,7 @@ groupCommands.use(enabledGroupChat(
         assertArgument(0, arg => !arg || Permissions.includes(arg as Permission)),
         ctx => {
             const permission = ctx.arguments.shift() as Permission | undefined;
+            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
             if (permission) {
                 if (!ctx.targetIsSelf()) {
                     enqueue(() => ctx.deleteMessage(ctx.message.message_id));
@@ -190,9 +191,14 @@ groupCommands.use(enabledGroupChat(
                     return;
                 }
                 ctx.user.groups[ctx.chat.id].permission = permission;
-                enqueue(() => ctx.toast(Templates.succeed));
+                enqueue(() => ctx.toast(format({
+                    self: Templates.setPermissionSelf,
+                    trusted: Templates.setPermissionTrusted,
+                    everyone: Templates.setPermissionEveryone,
+                }[permission], {
+                    user: markdownTextMention(ctx.user),
+                })));
             } else {
-                enqueue(() => ctx.deleteMessage(ctx.message.message_id));
                 enqueue(() => ctx.quietReply(format(Templates.currentPermission, {
                     targetUser: markdownTextMention(ctx.targetUser),
                     permission: ctx.targetUser.groups[ctx.chat.id].permission,
@@ -215,15 +221,23 @@ ${markdownEscape(user.firstName)}`,
         command('trust', assertArgumentsCountExact(0), ctx => {
             if (!ctx.user.trustedUsersId.includes(ctx.targetUser.id) && !ctx.targetIsSelf()) {
                 ctx.user.trustedUsersId.push(ctx.targetUser.id);
+                enqueue(() => ctx.quietReply(format(Templates.trusted, {
+                    user: markdownTextMention(ctx.user),
+                    targetUser: markdownTextMention(ctx.targetUser),
+                })));
             }
-            enqueue(() => ctx.toast(Templates.succeed));
+            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
         }),
         command('distrust', assertArgumentsCountExact(0), ctx => {
             const index = ctx.user.trustedUsersId.indexOf(ctx.targetUser.id);
             if (index >= 0) {
                 ctx.user.trustedUsersId.splice(index, 1);
+                enqueue(() => ctx.quietReply(format(Templates.distrusted, {
+                    user: markdownTextMention(ctx.user),
+                    targetUser: markdownTextMention(ctx.targetUser),
+                })));
             }
-            enqueue(() => ctx.toast(Templates.succeed));
+            enqueue(() => ctx.deleteMessage(ctx.message.message_id));
         }),
     ),
 ));

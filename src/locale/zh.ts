@@ -37,12 +37,14 @@ const Templates = {
 /ranking \\- 绒度排行榜（群）
 
 /permission \\- 设置其他人对你的权限（群）
-/trust \\- 信任一个用户（群）
-/distrust \\- 取消信任一个用户（群）
+/trust \\- 将目标添加到白名单（群）
+/distrust \\- 将目标从白名单中删除（群）
 
 *__你知道吗__*
 透过口塞说话支持翻译数字和日语假名。
 定时锁和主人锁可以共存。
+将 SOS 的摩斯电码重复哼三遍，管理员听到后会视情况解除你的定时锁。（以每 10 分钟扣 1 绒度为代价）
+如果你的主人不再活跃或逾越了你的底线，请私聊管理员以解除主人锁。
 `,
     gagHelp: `\
 *__口塞列表__（效果从弱到强）*
@@ -84,10 +86,8 @@ const Templates = {
     unknownError: '⚠️ 发生了未知的错误。',
     userError: '❌ 命令错误。请查看 /help 了解正确用法。',
     replyRequired: '❌ 此命令需回复其他人使用。',
-    argInvalid: '❌ 参数 $index "$value" 写错了！',
+    argInvalid: '❌ 参数 $index 写错了！',
     argsMismatch: '❌ 这个命令要 $expected 个参数，你写了 $actual 个。',
-
-    notEnabled: '❌ Bot 管理员未开启本群的口塞玩法。',
 
     viaBotPrefix: '（透过$gagName）',
     viaBotEmptyText: '（透过$gagName呜咽了一声）',
@@ -104,13 +104,20 @@ $user的绒度增加了 1 点。
 `,
 
     forbidChangeOtherUsersSettings: '❌ 不许修改其他人的设置！',
+
     gagListHeader: '*__口塞名称与所需绒度__*\n（点击名称以复制）\n',
+
     currentGagPref: '$targetUser喜欢戴：__$gagName__\n如要更改，在此命令后加上口塞名称。',
+
     currentPermission: `\
 $targetUser当前的权限为：__$permission__
 如要更改，在此命令后加上 self, trusted, everyone 的其中之一。
 `,
-    noPermission: '❌$targetUser目前不想被群友们调教。',
+    setPermissionSelf: '✅$user不想被调教了。',
+    setPermissionTrusted: '✅$user想被 ta 的主人调教了！',
+    setPermissionEveryone: '✅$user想被群友们调教了！',
+    noPermission: '❌$targetUser目前不想被你调教。',
+
     currentTimerLockLimit: `\
 $targetUser设置的定时锁时间上限：__$userTimeLimit__
 $targetUser的绒度所允许的上限：$expTimeLimit
@@ -120,12 +127,14 @@ $targetUser的绒度所允许的上限：$expTimeLimit
     selfTimerLockAdded: '✅$user给自己的口塞上的定时锁加了 $time，剩余时间：$remainingTime。',
     timerLockRemainingTime: '$targetUser的口塞上的定时锁还剩 $time。',
     timerLockExpired: '$targetUser的口塞现在没有上锁。',
+
     ownerLocked: '✅$user给$targetUser的口塞上了锁，并把钥匙保管了起来。',
     alreadyOwnerLocked: '❌$targetUser的口塞上已经有$ownerUser的锁了。',
     ownerLockRemoved: '✅$user用钥匙解锁了$targetUser的口塞。',
     ownerLockRemoveFailed: '❌ 你没有钥匙！钥匙在$ownerUser手上。',
     notOwnerLocked: '❌$targetUser的口塞没有被主人锁锁着。',
-    notTrusted: '❌$user不在$targetUser的信任列表里。',
+    notTrusted: '❌$user不在$targetUser的白名单里。',
+
     gagged: '✅$user给$targetUser戴上了$gagName。',
     selfGagged: '✅$user给自己戴上了$gagName。',
     alreadyGagged: '❌$targetUser已经戴着$gagName了。',
@@ -134,12 +143,16 @@ $targetUser的绒度所允许的上限：$expTimeLimit
     selfUngagged: '✅$user摘下了自己的口塞。',
     ungagPreventedByTimerLock: '❌$targetUser的口塞上的定时锁还剩 $time。',
     ungagPreventedByOwnerLock: '❌$targetUser的口塞被锁住了！钥匙在$ownerUser手上。',
+
     currentExp: '$targetUser的绒度是 $exp',
     expNotEnough: '❌$targetUser的绒度不足。$gagName需要 $required，而$targetUser只有 $actual。',
     expRankingHeader: '本群最绒的绒布球们：\n',
 
+    trusted: '✅$user将$targetUser加进了白名单。',
+    distrusted: '✅$user将$targetUser从白名单中删掉了。',
+
     adminUnlockedUser: `\
-$targetUser的口塞已解锁并将权限重置为 self。
+$targetUser呜呜的安全词被管理员听到并批准了，ta 的口塞上的定时锁已清零，并将调教权限设置为 self。
 $targetUser的绒度扣除了 $deductedExp
 `,
 };
