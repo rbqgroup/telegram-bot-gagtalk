@@ -7,6 +7,9 @@ emoji: false
 admins:
 - 0
 
+allowedStickerSets:
+- mmmmph
+
 gagList:
 
 - name: 布条口塞

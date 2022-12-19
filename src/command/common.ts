@@ -5,7 +5,7 @@ import { enqueue } from '../util/queue.js';
 import { expToTimerLockCap } from '../util/timer-lock.js';
 import { MyContext } from '../types/context.js';
 import { shortTimeSpanToMilliseconds } from '../util/convert.js';
-import { markdownTextMention } from '../util/telegraf.js';
+import { markdownEscape, markdownTextMention } from '../util/telegraf.js';
 import { ArgumentInvalidError, assertArgumentsAtMost, assertArgumentsCountExact } from '../middleware/arguments.js';
 
 const { command } = Composer<MyContext>;
@@ -13,6 +13,13 @@ const { command } = Composer<MyContext>;
 const commonCommands = new Composer<MyContext>();
 
 commonCommands.use(
+    command('allowedstickers', assertArgumentsCountExact(0), ctx => {
+        const text = config.allowedStickerSets.map(name => markdownEscape(name)!).reduce(
+            (str, name) => `${str}\n${`[${name}](https://t.me/addstickers/${name})`}`,
+            Templates.allowedStickerSetsHeader);
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+        enqueue(() => ctx.quietReply(text));
+    }),
     command('gaglist', assertArgumentsCountExact(0), ctx => {
         const sortedGagList = [...config.gagList].sort((a, b) => a.exp - b.exp);
         const text = sortedGagList.reduce(

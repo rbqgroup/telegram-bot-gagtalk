@@ -102,6 +102,12 @@ $user的绒度增加了 1 点。
 
 （请输入 @$botName 来发送消息。）
 `,
+    illegalSticker: `\
+⚠️$user发送的表情不在允许的表情包中，ta 的绒度降低了 1 点。
+
+（允许的表情包见 /allowedstickers。）
+`,
+    allowedStickerSetsHeader: '戴口塞时允许使用下列表情包：',
 
     forbidChangeOtherUsersSettings: '❌ 不许修改其他人的设置！',
 

@@ -8,6 +8,7 @@ type Config = Readonly<{
     expGainCooldown: number;
     emoji: boolean;
     admins: number[];
+    allowedStickerSets: string[];
     gagList: Readonly<{
         name: string;
         type: keyof typeof GagTypes;

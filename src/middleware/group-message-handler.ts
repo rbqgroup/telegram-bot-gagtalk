@@ -12,7 +12,9 @@ export default async function GroupMessageHandlerMiddleware(
     const gagName = ctx.user.groups[ctx.chat.id]?.gagName;
     if (gagName) {
         if ('sticker' in ctx.message) {
-            warnAndDeleteUngarbledMessage();
+            if (!config.allowedStickerSets.includes(ctx.message.sticker.set_name!)) {
+                warnAndDeleteStickerMessage();
+            }
         } else if ('text' in ctx.message) {
             if (ctx.message.via_bot?.username == ctx.me && (
                 ctx.message.text.startsWith(format(Templates.viaBotPrefix, { gagName })) ||
@@ -45,6 +47,14 @@ export default async function GroupMessageHandlerMiddleware(
             user: markdownTextMention(ctx.user),
             gagName,
             botName: markdownEscape(ctx.me),
+        })));
+    }
+
+    function warnAndDeleteStickerMessage() {
+        ctx.user.exp = Math.max(0, ctx.user.exp - 1);
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+        enqueue(() => ctx.toast(format(Templates.illegalSticker, {
+            user: markdownTextMention(ctx.user),
         })));
     }
 }
