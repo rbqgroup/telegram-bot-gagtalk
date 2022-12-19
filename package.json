@@ -22,10 +22,9 @@
       "gagtalk-mandarin": "^1.3.2",
       "level": "^8.0.0",
       "telegraf": "^4.11.2",
-      "yaml": "^2.1.3"
-   },
-   "devDependencies": {
+      "yaml": "^2.1.3",
       "@types/node": "^16.18.10",
       "typescript": "^4.9.4"
-   }
+   },
+   "devDependencies": {}
 }
