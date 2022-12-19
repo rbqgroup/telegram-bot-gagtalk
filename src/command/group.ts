@@ -191,7 +191,7 @@ groupCommands.use(enabledGroupChat(
                     return;
                 }
                 ctx.user.groups[ctx.chat.id].permission = permission;
-                enqueue(() => ctx.toast(format({
+                enqueue(() => ctx.quietReply(format({
                     self: Templates.setPermissionSelf,
                     trusted: Templates.setPermissionTrusted,
                     everyone: Templates.setPermissionEveryone,
