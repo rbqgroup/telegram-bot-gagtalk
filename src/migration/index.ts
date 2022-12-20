@@ -1,8 +1,10 @@
 import db from '../db.js';
 import migration_1 from './1.js';
+import migration_2 from './2.js';
 
 export const migrations: Migration[] = [
     migration_1,
+    migration_2
 ].sort((a, b) => a.version - b.version);
 
 export async function migrate() {
@@ -12,8 +14,10 @@ export async function migrate() {
     } catch {
         version = 0;
     }
+    console.log('Current database version: ' + version);
     for (const migration of migrations) {
         if (migration.version > version) {
+            console.log('Migrating database to version ' + version + '...');
             // Should crash if error has occured
             await migration.up();
             version = migration.version;
