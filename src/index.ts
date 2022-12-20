@@ -1,8 +1,10 @@
 import { Composer, Telegraf, TelegramError } from 'telegraf';
 import { message } from 'telegraf/filters';
+import { Update } from 'typegram';
 import { MyContext } from './types/context.js';
 import config from './config.js';
 import db from './db.js';
+import { migrate } from './migration';
 import queue, { enqueue } from './util/queue.js';
 import { onInlineQuery } from './inline-query.js';
 import { Templates } from './locale.js';
@@ -17,9 +19,10 @@ import GroupMessageHandlerMiddleware from './middleware/group-message-handler.js
 import commonCommands from './command/common.js';
 import groupCommands from './command/group.js';
 import adminCommands from './command/admin.js';
-import { Update } from 'telegraf/types.js';
 
 const { on, groupChat } = Composer;
+
+await migrate();
 
 const bot = new Telegraf<MyContext>(config.token);
 
