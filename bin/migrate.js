@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { migrations } from '../build/migration';
+import { migrations } from '../build/migration/index.js';
 
 const args = process.argv.slice(2);
 const operation = args.shift();
