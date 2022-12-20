@@ -6,7 +6,10 @@ import { format, Templates } from './locale.js';
 
 export async function onInlineQuery(ctx: MyContext<Update.InlineQueryUpdate>) {
     const wearingGags = new Set(
-        Object.values(ctx.user.groups).map(group => group.gagName).filter(name => name)
+        ctx.user.id == 777000
+            // We can't know channel chat id from inline queries, so show all gags instead.
+            ? config.gagList.map(gag => gag.name)
+            : Object.values(ctx.user.groups).map(group => group.gagName).filter(name => name)
     );
     let results = config.gagList
         // If the user is wearing a gag, only wearing gags will show in group chats.

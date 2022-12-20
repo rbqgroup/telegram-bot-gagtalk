@@ -10,22 +10,23 @@ export default async function UserMiddleware(
     ctx: MyMessageContext | MyContext<Update.InlineQueryUpdate>,
     next: () => Promise<void>,
 ) {
+    const userInfo = getTelegramUserInfo(
+        ctx.inlineQuery?.from
+        ?? (ctx.senderChat?.type == 'channel' ? ctx.senderChat : ctx.from)
+    );
     try {
-        ctx.user = await users.get(ctx.from.id);
+        ctx.user = await users.get(userInfo.id);
     } catch {
         ctx.user = new User();
     }
-    const telegramUser =
-        ctx.inlineQuery?.from
-        ?? (ctx.senderChat?.type == 'channel' ? ctx.senderChat : ctx.from);
-    Object.assign(ctx.user, getTelegramUserInfo(telegramUser));
+    Object.assign(ctx.user, userInfo);
     if (ctx.chat?.type == 'group' || ctx.chat?.type == 'supergroup') {
         ctx.user.groups[ctx.chat.id] ??= new UserGroupStatus();
     }
 
     await next();
 
-    if (ctx.user) {
+    if (ctx.user && ctx.user.id != 777000) {
         await users.put(ctx.user.id, ctx.user);
     }
 }
