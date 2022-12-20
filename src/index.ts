@@ -33,11 +33,6 @@ bot.on(['message', 'inline_query'], UserMiddleware);
 bot.on('message', TargetUserMiddleware);
 bot.on('message', groupChat(GroupMiddleware));
 
-bot.start(ctx => {
-    enqueue(() => ctx.deleteMessage(ctx.message.message_id));
-    enqueue(() => ctx.quietReply(Templates.start));
-});
-
 bot.use(groupCommands);
 bot.use(adminCommands);
 bot.use(commonCommands);

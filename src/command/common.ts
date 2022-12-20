@@ -13,6 +13,15 @@ const { command } = Composer<MyContext>;
 const commonCommands = new Composer<MyContext>();
 
 commonCommands.use(
+    command('start', ctx => {
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+        enqueue(() => ctx.quietReply({
+            start: Templates.start,
+            help: Templates.help,
+            privacy: Templates.privacy,
+            gaghelp: Templates.gagHelp,
+        }[ctx.arguments.shift() ?? 'start']!));
+    }),
     command('help', ctx => {
         enqueue(() => ctx.deleteMessage(ctx.message.message_id));
         enqueue(() => ctx.quietReply(Templates.help));

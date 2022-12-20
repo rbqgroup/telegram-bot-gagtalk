@@ -16,6 +16,18 @@ const { on, command } = Composer<MyContext>;
 const groupCommands = new Composer<MyContext>();
 
 groupCommands.use(enabledGroupChat(
+    command('start', ctx => enqueue(() => ctx.deleteMessage(ctx.message.message_id))),
+    command(['privacy', 'gaghelp'], ctx => {
+        const command = ctx.message.text.slice(1, ctx.message.entities![0]!.length + 1);
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+        enqueue(() => ctx.toast(format(Templates.seePM, {
+            command: markdownEscape(command),
+        })));
+    }),
+    command('help', ctx => {
+        enqueue(() => ctx.deleteMessage(ctx.message.message_id));
+        enqueue(() => ctx.toast(Templates.shortHelp));
+    }),
     command('gag', assertArgumentsAtMost(1), permissionCheck, ctx => {
         const gagName = ctx.arguments[0] || ctx.targetUser.defaultGagName;
         const gag = config.gagList.find(gag => gag.name == gagName);
