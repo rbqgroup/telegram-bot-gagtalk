@@ -22,5 +22,7 @@ export default async function GroupMiddleware(
 
     await next();
 
-    await groups.put(ctx.group.id, ctx.group);
+    if (ctx.group) {
+        await groups.put(ctx.group.id, ctx.group);
+    }
 }

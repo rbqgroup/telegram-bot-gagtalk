@@ -10,6 +10,7 @@ import { MyContext, MyTextMessageContext } from '../types/context.js';
 import { shortTimeSpanToMilliseconds } from '../util/convert.js';
 import { enabledGroupChat, markdownEscape, markdownTextMention } from '../util/telegraf.js';
 import { users } from '../db.js';
+import { User } from '../model/user.js';
 
 const { on, command } = Composer<MyContext>;
 
@@ -221,8 +222,16 @@ groupCommands.use(enabledGroupChat(
         },
     ),
     command('ranking', assertArgumentsCountExact(0), async ctx => {
-        const usersInGroup = (await Promise.all(ctx.group!.usersId.map(id => users.get(id))))
-            .filter(user => user && user.exp).sort((a, b) => b.exp - a.exp).slice(0, 20);
+        const usersInGroup = ((await Promise.all(ctx.group!.usersId
+            .map(async id => {
+                try {
+                    return await users.get(id);
+                } catch {
+                    return;
+                }
+            })))
+            .filter(user => user && user.exp) as User[])
+            .sort((a, b) => b.exp - a.exp).slice(0, 20);
         const text = usersInGroup.reduce((str, user) => `${str}
 \`${user.exp.toFixed().padStart(5)}\`  \
 ${markdownEscape(user.lastName ? user.lastName + ' ' : '')}\
