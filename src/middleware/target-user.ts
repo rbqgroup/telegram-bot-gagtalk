@@ -1,5 +1,6 @@
 import { Chat } from 'typegram';
 import { users } from '../db.js';
+import { UserGroupStatus } from '../model/user-group-status.js';
 import { User } from '../model/user.js';
 import { MyMessageContext } from '../types/context.js';
 import { getTelegramUserInfo } from '../util/telegraf.js';
@@ -27,6 +28,9 @@ export default async function TargetUserMiddleware(
                 ctx.targetUser = new User();
             }
             Object.assign(ctx.targetUser, userInfo);
+            if (ctx.chat?.type == 'group' || ctx.chat?.type == 'supergroup') {
+                ctx.targetUser.groups[ctx.chat.id] ??= new UserGroupStatus();
+            }
         }
     }
     ctx.targetUser ??= ctx.user;
