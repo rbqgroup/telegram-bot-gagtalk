@@ -3,6 +3,7 @@ import { UserGroupStatus } from './user-group-status.js';
 
 export class User {
 
+    /** Positive for normal users, negative if the user is a channel. */
     id!: number;
     firstName!: string;
     lastName?: string;
