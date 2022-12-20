@@ -11,8 +11,7 @@ export default async function UserMiddleware(
     next: () => Promise<void>,
 ) {
     const userInfo = getTelegramUserInfo(
-        ctx.inlineQuery?.from
-        ?? (ctx.senderChat?.type == 'channel' ? ctx.senderChat : ctx.from)
+        ctx.senderChat?.type == 'channel' ? ctx.senderChat : ctx.from
     );
     try {
         ctx.user = await users.get(userInfo.id);
