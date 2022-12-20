@@ -26,15 +26,25 @@ export function enabledGroupChat<C extends MyContext>(
     return optional(ctx => ctx.group?.botEnabled == true, ...fns);
 }
 
-export function markdownTextMention(user: User | TelegramUser) {
+export function markdownTextMention(user: User | TelegramUser | Chat.ChannelChat) {
     if (!user) {
         return '';
     }
-    const firstName = markdownEscape(
-        (user as User).firstName ?? (user as TelegramUser).first_name);
-    const lastName = markdownEscape(
-        (user as User).lastName ?? (user as TelegramUser).last_name);
-    return ` [${lastName ? lastName + ' ' : ''}${firstName}](tg://user?id=${user.id}) `;
+    if ('type' in user) {
+        const firstName = markdownEscape(user.title);
+        const username = markdownEscape(user.username);
+        return ` [${firstName}](https://t.me/${username}) `;
+    } else if (user.id < 0 && 'firstName' in user) {
+        const firstName = markdownEscape(user.firstName);
+        const username = markdownEscape(user.username);
+        return ` [${firstName}](https://t.me/${username}) `;
+    } else {
+        const firstName = markdownEscape(
+            (user as User).firstName ?? (user as TelegramUser).first_name);
+        const lastName = markdownEscape(
+            (user as User).lastName ?? (user as TelegramUser).last_name);
+        return ` [${lastName ? lastName + ' ' : ''}${firstName}](tg://user?id=${user.id}) `;
+    }
 }
 
 export function markdownEscape(str?: string) {
