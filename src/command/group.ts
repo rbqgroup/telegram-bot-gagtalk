@@ -18,7 +18,9 @@ const groupCommands = new Composer<MyContext>();
 groupCommands.use(enabledGroupChat(
     command('start', ctx => enqueue(() => ctx.deleteMessage(ctx.message.message_id))),
     command(['privacy', 'gaghelp'], ctx => {
-        const command = ctx.message.text.slice(1, ctx.message.entities![0]!.length + 1);
+        const command = ctx.message.text
+            .slice(1, ctx.message.entities![0]!.length + 1)
+            .split('@')[0];
         enqueue(() => ctx.deleteMessage(ctx.message.message_id));
         enqueue(() => ctx.toast(format(Templates.seePM, {
             command: markdownEscape(command),
