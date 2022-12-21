@@ -33,5 +33,5 @@ export async function onInlineQuery(ctx: MyContext<Update.InlineQueryUpdate>) {
                 },
             };
         });
-    ctx.answerInlineQuery(results, { cache_time: 0 });
+    await ctx.answerInlineQuery(results, { cache_time: 0 });
 }
