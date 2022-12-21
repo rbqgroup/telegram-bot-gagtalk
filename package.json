@@ -1,6 +1,6 @@
 {
    "name": "telegram-bot-gagtalk",
-   "version": "2.3.3",
+   "version": "2.3.4",
    "description": "",
    "type": "module",
    "main": "index.js",
